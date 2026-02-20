@@ -1,8 +1,27 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const fs = require("fs");
 
-const dbPath = path.join(__dirname, "..", "/app/data/costs.db");
-const db = new sqlite3.Database(dbPath);
+// Use /app/data in production (Railway volume), local path in dev
+const isProduction =
+  process.env.NODE_ENV === "production" || process.env.RAILWAY_ENVIRONMENT;
+const dbDir = isProduction ? "/app/data" : path.join(__dirname, "..");
+const dbPath = path.join(dbDir, "costs.db");
+
+// Create directory if it doesn't exist
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+console.log(`📁 Database path: ${dbPath}`);
+
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error("❌ Failed to open database:", err);
+  } else {
+    console.log("✅ Database connected");
+  }
+});
 
 // Initialize database
 db.serialize(() => {
@@ -22,7 +41,6 @@ db.serialize(() => {
     )
   `);
 
-  // Index for fast queries
   db.run(`CREATE INDEX IF NOT EXISTS idx_customer_timestamp 
           ON requests(customer_api_key, timestamp)`);
 });
