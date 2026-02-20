@@ -153,9 +153,8 @@ app.post("/v1/messages/mock", async (req, res) => {
   res.setHeader("X-Cost-Total-USD", cost.totalCost.toFixed(6));
   res.json(mockResponse);
 });
-
-// Dashboard endpoint - view costs
-app.get("/api/costs/:apiKey", async (req, res) => {
+// Dashboard API - view costs by customer
+app.get("/api/costs/:apiKey", (req, res) => {
   const { apiKey } = req.params;
 
   db.all(
@@ -164,7 +163,7 @@ app.get("/api/costs/:apiKey", async (req, res) => {
       COUNT(*) as request_count,
       SUM(input_tokens) as total_input_tokens,
       SUM(output_tokens) as total_output_tokens,
-      SUM(total_cost_usd) as daily_cost
+      ROUND(SUM(total_cost_usd), 6) as daily_cost_usd
     FROM requests 
     WHERE customer_api_key = ? AND status = 'success'
     GROUP BY date
@@ -175,7 +174,43 @@ app.get("/api/costs/:apiKey", async (req, res) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      res.json({ apiKey, costs: rows });
+
+      const totalCost = rows.reduce((sum, row) => sum + row.daily_cost_usd, 0);
+      const totalRequests = rows.reduce(
+        (sum, row) => sum + row.request_count,
+        0,
+      );
+
+      res.json({
+        apiKey,
+        summary: {
+          total_requests: totalRequests,
+          total_cost_usd: totalCost.toFixed(6),
+        },
+        daily_breakdown: rows,
+      });
+    },
+  );
+});
+
+// Get all costs (admin view)
+app.get("/api/costs", (req, res) => {
+  db.all(
+    `SELECT 
+      customer_api_key,
+      COUNT(*) as total_requests,
+      ROUND(SUM(total_cost_usd), 6) as total_cost_usd,
+      MAX(timestamp) as last_request_timestamp
+    FROM requests 
+    WHERE status = 'success'
+    GROUP BY customer_api_key
+    ORDER BY total_cost_usd DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ customers: rows });
     },
   );
 });
