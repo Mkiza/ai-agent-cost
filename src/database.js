@@ -1,7 +1,7 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
-const dbPath = path.join(__dirname, "..", "costs.db");
+const dbPath = path.join(__dirname, "..", "/app/data/costs.db");
 const db = new sqlite3.Database(dbPath);
 
 // Initialize database
@@ -52,7 +52,7 @@ function logRequest(data) {
       (err) => {
         if (err) reject(err);
         else resolve();
-      }
+      },
     );
 
     stmt.finalize();
