@@ -153,3 +153,29 @@ app.post("/v1/messages/mock", async (req, res) => {
   res.setHeader("X-Cost-Total-USD", cost.totalCost.toFixed(6));
   res.json(mockResponse);
 });
+
+// Dashboard endpoint - view costs
+app.get("/api/costs/:apiKey", async (req, res) => {
+  const { apiKey } = req.params;
+
+  db.all(
+    `SELECT 
+      DATE(timestamp/1000, 'unixepoch') as date,
+      COUNT(*) as request_count,
+      SUM(input_tokens) as total_input_tokens,
+      SUM(output_tokens) as total_output_tokens,
+      SUM(total_cost_usd) as daily_cost
+    FROM requests 
+    WHERE customer_api_key = ? AND status = 'success'
+    GROUP BY date
+    ORDER BY date DESC
+    LIMIT 30`,
+    [apiKey],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ apiKey, costs: rows });
+    },
+  );
+});
