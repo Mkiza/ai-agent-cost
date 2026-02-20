@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const { logRequest } = require("./database");
+const { db, logRequest } = require("./database");
 const { calculateCost } = require("./pricing");
 
 const app = express();
