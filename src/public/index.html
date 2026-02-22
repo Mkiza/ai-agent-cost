@@ -182,6 +182,29 @@
         </div>
       </div>
 
+      <div class="input-section">
+        <h3 style="margin-bottom: 15px">💰 Set Budget Limits</h3>
+        <div class="input-group">
+          <input
+            type="number"
+            id="dailyLimit"
+            placeholder="Daily limit (USD, e.g., 100)"
+            step="0.01"
+          />
+          <input
+            type="number"
+            id="monthlyLimit"
+            placeholder="Monthly limit (USD, e.g., 1000)"
+            step="0.01"
+          />
+          <button onclick="setBudget()">Set Budget</button>
+        </div>
+        <div
+          id="budgetStatus"
+          style="margin-top: 10px; color: #667eea; font-weight: bold"
+        ></div>
+      </div>
+
       <div id="errorMessage"></div>
       <div id="loadingMessage"></div>
       <div id="dashboard"></div>
@@ -372,6 +395,41 @@
           loadCosts();
         }
       };
+      async function setBudget() {
+        const apiKey = document.getElementById("apiKeyInput").value.trim();
+        const dailyLimit =
+          parseFloat(document.getElementById("dailyLimit").value) || null;
+        const monthlyLimit =
+          parseFloat(document.getElementById("monthlyLimit").value) || null;
+
+        if (!apiKey) {
+          showError("Please enter an API key first");
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/budget/${apiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              daily_limit: dailyLimit,
+              monthly_limit: monthlyLimit,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById("budgetStatus").innerHTML =
+              "✅ Budget set! Requests will be blocked when limit is reached.";
+            setTimeout(() => {
+              document.getElementById("budgetStatus").innerHTML = "";
+            }, 5000);
+          }
+        } catch (error) {
+          showError("Failed to set budget: " + error.message);
+        }
+      }
     </script>
   </body>
 </html>

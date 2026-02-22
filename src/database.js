@@ -41,6 +41,17 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS budgets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_api_key TEXT NOT NULL UNIQUE,
+      daily_limit_usd REAL,
+      monthly_limit_usd REAL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `);
+
   db.run(`CREATE INDEX IF NOT EXISTS idx_customer_timestamp 
           ON requests(customer_api_key, timestamp)`);
 });
@@ -77,4 +88,85 @@ function logRequest(data) {
   });
 }
 
-module.exports = { db, logRequest };
+function getBudget(customerApiKey) {
+  return new Promise((resolve, reject) => {
+    db.get(
+      `SELECT * FROM budgets WHERE customer_api_key = ?`,
+      [customerApiKey],
+      (err, row) => {
+        if (err) reject(err);
+        else resolve(row || null);
+      },
+    );
+  });
+}
+
+function getTodaySpend(customerApiKey) {
+  return new Promise((resolve, reject) => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    db.get(
+      `SELECT COALESCE(SUM(total_cost_usd), 0) as total 
+       FROM requests 
+       WHERE customer_api_key = ? 
+       AND timestamp >= ? 
+       AND status = 'success'`,
+      [customerApiKey, todayStart.getTime()],
+      (err, row) => {
+        if (err) reject(err);
+        else resolve(row.total);
+      },
+    );
+  });
+}
+
+function getMonthSpend(customerApiKey) {
+  return new Promise((resolve, reject) => {
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    db.get(
+      `SELECT COALESCE(SUM(total_cost_usd), 0) as total 
+       FROM requests 
+       WHERE customer_api_key = ? 
+       AND timestamp >= ? 
+       AND status = 'success'`,
+      [customerApiKey, monthStart.getTime()],
+      (err, row) => {
+        if (err) reject(err);
+        else resolve(row.total);
+      },
+    );
+  });
+}
+
+function setBudget(customerApiKey, dailyLimit, monthlyLimit) {
+  return new Promise((resolve, reject) => {
+    const now = Date.now();
+    db.run(
+      `INSERT INTO budgets (customer_api_key, daily_limit_usd, monthly_limit_usd, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(customer_api_key) 
+       DO UPDATE SET 
+         daily_limit_usd = excluded.daily_limit_usd,
+         monthly_limit_usd = excluded.monthly_limit_usd,
+         updated_at = excluded.updated_at`,
+      [customerApiKey, dailyLimit, monthlyLimit, now, now],
+      (err) => {
+        if (err) reject(err);
+        else resolve();
+      },
+    );
+  });
+}
+
+module.exports = {
+  db,
+  logRequest,
+  getBudget,
+  getTodaySpend,
+  getMonthSpend,
+  setBudget,
+};

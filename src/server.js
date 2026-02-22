@@ -3,7 +3,14 @@ const express = require("express");
 const path = require("path");
 const axios = require("axios");
 const cors = require("cors");
-const { db, logRequest } = require("./database");
+const {
+  db,
+  logRequest,
+  getBudget,
+  getTodaySpend,
+  getMonthSpend,
+  setBudget,
+} = require("./database");
 const { calculateCost } = require("./pricing");
 
 const app = express();
@@ -38,6 +45,35 @@ app.post("/v1/messages", async (req, res) => {
   }
 
   try {
+    // NEW: Check budget limits
+    const budget = await getBudget(customerApiKey);
+
+    if (budget) {
+      if (budget.daily_limit_usd) {
+        const todaySpend = await getTodaySpend(customerApiKey);
+        if (todaySpend >= budget.daily_limit_usd) {
+          return res.status(429).json({
+            error: "Daily budget exceeded",
+            budget_limit: budget.daily_limit_usd,
+            current_spend: todaySpend,
+            message: `You've spent $${todaySpend.toFixed(4)} today. Daily limit is $${budget.daily_limit_usd}.`,
+          });
+        }
+      }
+
+      if (budget.monthly_limit_usd) {
+        const monthSpend = await getMonthSpend(customerApiKey);
+        if (monthSpend >= budget.monthly_limit_usd) {
+          return res.status(429).json({
+            error: "Monthly budget exceeded",
+            budget_limit: budget.monthly_limit_usd,
+            current_spend: monthSpend,
+            message: `You've spent $${monthSpend.toFixed(4)} this month. Monthly limit is $${budget.monthly_limit_usd}.`,
+          });
+        }
+      }
+    }
+
     // Forward request to Anthropic
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
@@ -215,4 +251,42 @@ app.get("/api/costs", (req, res) => {
       res.json({ customers: rows });
     },
   );
+});
+// Get budget for a customer
+app.get("/api/budget/:apiKey", async (req, res) => {
+  try {
+    const budget = await getBudget(req.params.apiKey);
+    const todaySpend = await getTodaySpend(req.params.apiKey);
+    const monthSpend = await getMonthSpend(req.params.apiKey);
+
+    res.json({
+      budget: budget || { daily_limit_usd: null, monthly_limit_usd: null },
+      current_spend: {
+        today: todaySpend,
+        month: monthSpend,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Set budget for a customer
+app.post("/api/budget/:apiKey", async (req, res) => {
+  try {
+    const { daily_limit, monthly_limit } = req.body;
+
+    await setBudget(
+      req.params.apiKey,
+      daily_limit || null,
+      monthly_limit || null,
+    );
+
+    res.json({
+      success: true,
+      message: "Budget updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
