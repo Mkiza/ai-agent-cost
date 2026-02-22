@@ -42,15 +42,29 @@ db.serialize(() => {
   `);
 
   db.run(`
-    CREATE TABLE IF NOT EXISTS budgets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      customer_api_key TEXT NOT NULL UNIQUE,
-      daily_limit_usd REAL,
-      monthly_limit_usd REAL,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    )
-  `);
+  CREATE TABLE IF NOT EXISTS budgets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_api_key TEXT NOT NULL UNIQUE,
+    daily_limit_usd REAL,
+    monthly_limit_usd REAL,
+    alert_email TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )
+`);
+
+  db.run(`
+  CREATE TABLE IF NOT EXISTS alerts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_api_key TEXT NOT NULL,
+    alert_type TEXT NOT NULL,
+    alert_period TEXT NOT NULL,
+    spend_amount REAL NOT NULL,
+    limit_amount REAL NOT NULL,
+    sent_at INTEGER NOT NULL,
+    email_sent BOOLEAN DEFAULT 0
+  )
+`);
 
   db.run(`CREATE INDEX IF NOT EXISTS idx_customer_timestamp 
           ON requests(customer_api_key, timestamp)`);
@@ -142,18 +156,19 @@ function getMonthSpend(customerApiKey) {
   });
 }
 
-function setBudget(customerApiKey, dailyLimit, monthlyLimit) {
+function setBudget(customerApiKey, dailyLimit, monthlyLimit, alertEmail) {
   return new Promise((resolve, reject) => {
     const now = Date.now();
     db.run(
-      `INSERT INTO budgets (customer_api_key, daily_limit_usd, monthly_limit_usd, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?)
+      `INSERT INTO budgets (customer_api_key, daily_limit_usd, monthly_limit_usd, alert_email, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT(customer_api_key) 
        DO UPDATE SET 
          daily_limit_usd = excluded.daily_limit_usd,
          monthly_limit_usd = excluded.monthly_limit_usd,
+         alert_email = excluded.alert_email,
          updated_at = excluded.updated_at`,
-      [customerApiKey, dailyLimit, monthlyLimit, now, now],
+      [customerApiKey, dailyLimit, monthlyLimit, alertEmail, now, now],
       (err) => {
         if (err) reject(err);
         else resolve();
@@ -162,6 +177,49 @@ function setBudget(customerApiKey, dailyLimit, monthlyLimit) {
   });
 }
 
+function getRecentAlert(customerApiKey, alertType, period) {
+  return new Promise((resolve, reject) => {
+    const oneHourAgo = Date.now() - 60 * 60 * 1000;
+
+    db.get(
+      `SELECT * FROM alerts 
+       WHERE customer_api_key = ? 
+       AND alert_type = ? 
+       AND alert_period = ?
+       AND sent_at > ?
+       ORDER BY sent_at DESC LIMIT 1`,
+      [customerApiKey, alertType, period, oneHourAgo],
+      (err, row) => {
+        if (err) reject(err);
+        else resolve(row || null);
+      },
+    );
+  });
+}
+
+function logAlert(customerApiKey, alertType, period, spend, limit, emailSent) {
+  return new Promise((resolve, reject) => {
+    db.run(
+      `INSERT INTO alerts (customer_api_key, alert_type, alert_period, spend_amount, limit_amount, sent_at, email_sent)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        customerApiKey,
+        alertType,
+        period,
+        spend,
+        limit,
+        Date.now(),
+        emailSent ? 1 : 0,
+      ],
+      (err) => {
+        if (err) reject(err);
+        else resolve();
+      },
+    );
+  });
+}
+
+// Update exports
 module.exports = {
   db,
   logRequest,
@@ -169,4 +227,6 @@ module.exports = {
   getTodaySpend,
   getMonthSpend,
   setBudget,
+  getRecentAlert,
+  logAlert,
 };

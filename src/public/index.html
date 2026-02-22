@@ -184,21 +184,66 @@
 
       <div class="input-section">
         <h3 style="margin-bottom: 15px">💰 Set Budget Limits</h3>
-        <div class="input-group">
+
+        <div style="display: flex; gap: 15px; margin-bottom: 10px">
           <input
             type="number"
             id="dailyLimit"
             placeholder="Daily limit (USD, e.g., 100)"
             step="0.01"
+            style="
+              flex: 1;
+              padding: 15px;
+              border: 2px solid #e0e0e0;
+              border-radius: 8px;
+              font-size: 1rem;
+            "
           />
           <input
             type="number"
             id="monthlyLimit"
             placeholder="Monthly limit (USD, e.g., 1000)"
             step="0.01"
+            style="
+              flex: 1;
+              padding: 15px;
+              border: 2px solid #e0e0e0;
+              border-radius: 8px;
+              font-size: 1rem;
+            "
           />
-          <button onclick="setBudget()">Set Budget</button>
         </div>
+
+        <div style="display: flex; gap: 15px; align-items: center">
+          <input
+            type="email"
+            id="alertEmail"
+            placeholder="Alert email (optional)"
+            style="
+              flex: 1;
+              padding: 15px;
+              border: 2px solid #e0e0e0;
+              border-radius: 8px;
+              font-size: 1rem;
+            "
+          />
+          <button
+            onclick="setBudget()"
+            style="
+              padding: 15px 30px;
+              background: #667eea;
+              color: white;
+              border: none;
+              border-radius: 8px;
+              font-size: 1rem;
+              cursor: pointer;
+              white-space: nowrap;
+            "
+          >
+            Set Budget
+          </button>
+        </div>
+
         <div
           id="budgetStatus"
           style="margin-top: 10px; color: #667eea; font-weight: bold"
@@ -401,6 +446,8 @@
           parseFloat(document.getElementById("dailyLimit").value) || null;
         const monthlyLimit =
           parseFloat(document.getElementById("monthlyLimit").value) || null;
+        const alertEmail =
+          document.getElementById("alertEmail").value.trim() || null;
 
         if (!apiKey) {
           showError("Please enter an API key first");
@@ -414,6 +461,7 @@
             body: JSON.stringify({
               daily_limit: dailyLimit,
               monthly_limit: monthlyLimit,
+              alert_email: alertEmail,
             }),
           });
 
@@ -421,7 +469,7 @@
 
           if (data.success) {
             document.getElementById("budgetStatus").innerHTML =
-              "✅ Budget set! Requests will be blocked when limit is reached.";
+              "✅ Budget set! You'll receive email alerts when limits are exceeded.";
             setTimeout(() => {
               document.getElementById("budgetStatus").innerHTML = "";
             }, 5000);

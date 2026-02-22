@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const axios = require("axios");
 const cors = require("cors");
+const { sendAlert, formatCostAlert } = require("./email");
 const {
   db,
   logRequest,
@@ -10,6 +11,8 @@ const {
   getTodaySpend,
   getMonthSpend,
   setBudget,
+  getRecentAlert,
+  logAlert,
 } = require("./database");
 const { calculateCost } = require("./pricing");
 
@@ -51,7 +54,39 @@ app.post("/v1/messages", async (req, res) => {
     if (budget) {
       if (budget.daily_limit_usd) {
         const todaySpend = await getTodaySpend(customerApiKey);
+
+        // Check if budget exceeded
         if (todaySpend >= budget.daily_limit_usd) {
+          // Send alert email (only once per hour to avoid spam)
+          const recentAlert = await getRecentAlert(
+            customerApiKey,
+            "budget_exceeded",
+            "daily",
+          );
+
+          if (!recentAlert && budget.alert_email) {
+            const alert = formatCostAlert(
+              customerApiKey,
+              todaySpend,
+              budget.daily_limit_usd,
+              "daily",
+            );
+            const sent = await sendAlert(
+              budget.alert_email,
+              alert.subject,
+              alert.text,
+              alert.html,
+            );
+            await logAlert(
+              customerApiKey,
+              "budget_exceeded",
+              "daily",
+              todaySpend,
+              budget.daily_limit_usd,
+              sent,
+            );
+          }
+
           return res.status(429).json({
             error: "Daily budget exceeded",
             budget_limit: budget.daily_limit_usd,
@@ -61,9 +96,40 @@ app.post("/v1/messages", async (req, res) => {
         }
       }
 
+      // Same for monthly
       if (budget.monthly_limit_usd) {
         const monthSpend = await getMonthSpend(customerApiKey);
+
         if (monthSpend >= budget.monthly_limit_usd) {
+          const recentAlert = await getRecentAlert(
+            customerApiKey,
+            "budget_exceeded",
+            "monthly",
+          );
+
+          if (!recentAlert && budget.alert_email) {
+            const alert = formatCostAlert(
+              customerApiKey,
+              monthSpend,
+              budget.monthly_limit_usd,
+              "monthly",
+            );
+            const sent = await sendAlert(
+              budget.alert_email,
+              alert.subject,
+              alert.text,
+              alert.html,
+            );
+            await logAlert(
+              customerApiKey,
+              "budget_exceeded",
+              "monthly",
+              monthSpend,
+              budget.monthly_limit_usd,
+              sent,
+            );
+          }
+
           return res.status(429).json({
             error: "Monthly budget exceeded",
             budget_limit: budget.monthly_limit_usd,
@@ -274,12 +340,13 @@ app.get("/api/budget/:apiKey", async (req, res) => {
 // Set budget for a customer
 app.post("/api/budget/:apiKey", async (req, res) => {
   try {
-    const { daily_limit, monthly_limit } = req.body;
+    const { daily_limit, monthly_limit, alert_email } = req.body;
 
     await setBudget(
       req.params.apiKey,
       daily_limit || null,
       monthly_limit || null,
+      alert_email || null,
     );
 
     res.json({

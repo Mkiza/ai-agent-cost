@@ -182,3 +182,13 @@ Questions? Issues? [Open an issue](https://github.com/Mkiza/ai-agent-cost/issues
 ---
 
 **⭐ If this saves you from a surprise $50K bill, give us a star!**
+
+## 🙏 Attribution
+
+If you use this code, we'd appreciate:
+
+- ⭐ A star on GitHub
+- 🔗 A link back to this repo
+- 💬 Mentioning @Mkiza if you tweet about it
+
+Not required, but helps us grow! 🚀
