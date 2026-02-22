@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - AI Agent Cost Monitor</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        color: #888;
+        margin-bottom: 30px;
+      }
+
+      h2 {
+        color: #333;
+        margin-top: 30px;
+        margin-bottom: 15px;
+      }
+
+      p,
+      li {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 15px;
+      }
+
+      .highlight {
+        background: #f0f4ff;
+        border-left: 4px solid #667eea;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .green {
+        color: #22c55e;
+        font-weight: bold;
+      }
+
+      .red {
+        color: #ef4444;
+        font-weight: bold;
+      }
+
+      ul {
+        margin-left: 20px;
+      }
+
+      a {
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 12px 24px;
+        background: #667eea;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+      }
+
+      .back-link:hover {
+        background: #5568d3;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔒 Privacy Policy</h1>
+      <p class="subtitle">Last updated: February 22, 2025</p>
+
+      <div class="highlight">
+        <strong
+          >TL;DR: We only track metadata (costs, tokens). We NEVER store your
+          prompts, responses, or API keys.</strong
+        >
+      </div>
+
+      <h2>What We Track</h2>
+      <p>When you route API calls through our proxy, we collect:</p>
+      <ul>
+        <li class="green">✓ Timestamp of request</li>
+        <li class="green">✓ Model used (e.g., Claude Sonnet 4.5)</li>
+        <li class="green">✓ Token counts (input and output)</li>
+        <li class="green">✓ Calculated cost</li>
+        <li class="green">✓ Your tracking API key (e.g., "customer-123")</li>
+        <li class="green">✓ Request duration</li>
+      </ul>
+
+      <h2>What We DON'T Track</h2>
+      <ul>
+        <li class="red">✗ Your prompts or message content</li>
+        <li class="red">✗ Claude's responses</li>
+        <li class="red">✗ Your Anthropic API key</li>
+        <li class="red">✗ IP addresses</li>
+        <li class="red">✗ Any personally identifiable information</li>
+      </ul>
+
+      <h2>Why Trust Us?</h2>
+
+      <p>
+        <strong>1. Open Source</strong><br />
+        Our entire codebase is available on
+        <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank"
+          >GitHub</a
+        >. You can audit every line of code to verify we're not logging
+        sensitive data.
+      </p>
+
+      <p>
+        <strong>2. Self-Hosting Option</strong><br />
+        Don't trust our hosted version? Self-host it on your own infrastructure.
+        You have complete control over your data.
+      </p>
+
+      <p>
+        <strong>3. Simple Architecture</strong><br />
+        Our proxy forwards your requests directly to Anthropic's API. We only
+        extract metadata from the response headers - we never parse the actual
+        content.
+      </p>
+
+      <h2>Data Storage</h2>
+
+      <p>
+        We store tracked metadata in a SQLite database (or PostgreSQL for
+        enterprise customers). Data is retained for 90 days by default, then
+        automatically deleted.
+      </p>
+
+      <p>
+        You can delete your data at any time by contacting us or using the API.
+      </p>
+
+      <h2>How We Use Your Data</h2>
+
+      <p>We use the collected metadata solely to:</p>
+      <ul>
+        <li>Display cost breakdowns in your dashboard</li>
+        <li>Send alerts when you hit budget thresholds</li>
+        <li>Generate usage analytics</li>
+      </ul>
+
+      <p><strong>We never:</strong></p>
+      <ul>
+        <li>Sell your data</li>
+        <li>Share it with third parties</li>
+        <li>Use it for training models</li>
+        <li>Use it for marketing</li>
+      </ul>
+
+      <h2>Third-Party Services</h2>
+
+      <p>
+        Your API requests pass through our proxy to
+        <strong>Anthropic's API</strong>. Anthropic's privacy policy applies to
+        the actual API calls. We recommend reviewing
+        <a href="https://www.anthropic.com/legal/privacy" target="_blank"
+          >Anthropic's Privacy Policy</a
+        >.
+      </p>
+
+      <h2>Security</h2>
+
+      <p>We take security seriously:</p>
+      <ul>
+        <li>All traffic is encrypted with HTTPS/TLS</li>
+        <li>Database access is restricted</li>
+        <li>We follow industry-standard security practices</li>
+        <li>Regular security audits (for enterprise customers)</li>
+      </ul>
+
+      <h2>Your Rights</h2>
+
+      <p>You have the right to:</p>
+      <ul>
+        <li>Access your data</li>
+        <li>Delete your data</li>
+        <li>Export your data</li>
+        <li>Opt out of tracking entirely (by self-hosting)</li>
+      </ul>
+
+      <h2>Contact</h2>
+
+      <p>Questions about privacy? Contact us:</p>
+      <ul>
+        <li>
+          GitHub:
+          <a
+            href="https://github.com/Mkiza/ai-agent-cost/issues"
+            target="_blank"
+            >Open an issue</a
+          >
+        </li>
+        <li>Email: ronaldmkiza@gmail.com</li>
+      </ul>
+
+      <h2>Changes to This Policy</h2>
+
+      <p>
+        We may update this privacy policy from time to time. We'll notify users
+        of significant changes via email or dashboard notification.
+      </p>
+
+      <div class="highlight">
+        <strong>Bottom line:</strong> We're developers who hate surprise bills.
+        We built this to solve our own problem. We respect your privacy because
+        we'd want the same.
+      </div>
+
+      <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+  </body>
+</html>
