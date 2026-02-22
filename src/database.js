@@ -66,6 +66,33 @@ db.serialize(() => {
   )
 `);
 
+  // Add alert_email column if it doesn't exist (migration)
+  db.run(
+    `
+    PRAGMA table_info(budgets)
+  `,
+    (err, rows) => {
+      if (!err) {
+        db.all(`PRAGMA table_info(budgets)`, [], (err, columns) => {
+          const hasAlertEmail = columns.some(
+            (col) => col.name === "alert_email",
+          );
+
+          if (!hasAlertEmail) {
+            console.log("🔧 Adding alert_email column to budgets table...");
+            db.run(`ALTER TABLE budgets ADD COLUMN alert_email TEXT`, (err) => {
+              if (err) {
+                console.error("❌ Failed to add alert_email column:", err);
+              } else {
+                console.log("✅ alert_email column added");
+              }
+            });
+          }
+        });
+      }
+    },
+  );
+
   db.run(`CREATE INDEX IF NOT EXISTS idx_customer_timestamp 
           ON requests(customer_api_key, timestamp)`);
 });

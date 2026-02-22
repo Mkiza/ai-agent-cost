@@ -3,6 +3,11 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 async function sendAlert(to, subject, text, html) {
+  console.log("📧 Attempting to send email to:", to);
+  console.log("📧 Subject:", subject);
+  console.log("📧 SendGrid API Key present:", !!process.env.SENDGRID_API_KEY);
+  console.log("📧 From email:", process.env.FROM_EMAIL);
+
   if (!process.env.SENDGRID_API_KEY) {
     console.log("⚠️  SendGrid not configured, skipping email");
     return false;
@@ -16,7 +21,7 @@ async function sendAlert(to, subject, text, html) {
   try {
     await sgMail.send({
       to,
-      from: process.env.FROM_EMAIL, // Must be verified in SendGrid
+      from: process.env.FROM_EMAIL,
       subject,
       text,
       html,
@@ -24,11 +29,10 @@ async function sendAlert(to, subject, text, html) {
     console.log(`✅ Alert sent to ${to}: ${subject}`);
     return true;
   } catch (error) {
-    console.error("❌ Failed to send email:", error);
+    console.error("❌ Failed to send email:", error.response?.body || error);
     return false;
   }
 }
-
 function formatCostAlert(apiKey, spend, limit, period) {
   const subject = `⚠️ AI Cost Alert: Budget ${period} exceeded`;
 
