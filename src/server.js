@@ -1,11 +1,13 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const axios = require("axios");
 const cors = require("cors");
 const { db, logRequest } = require("./database");
 const { calculateCost } = require("./pricing");
 
 const app = express();
+app.use(express.static(path.join(__dirname, "public")));
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
