@@ -138,7 +138,7 @@
         
         /* Hero */
         .hero {
-            padding: 80px 0 60px;
+            padding: 100px 0 80px;
             text-align: center;
         }
         
@@ -172,18 +172,33 @@
             font-weight: 800;
             line-height: 1.1;
             letter-spacing: -0.03em;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             animation: fadeIn 0.6s ease 0.1s both;
         }
         
+        .hero-source {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            animation: fadeIn 0.6s ease 0.15s both;
+        }
+        
+        .hero-source a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .hero-source a:hover {
+            text-decoration: underline;
+        }
+        
         .hero-tagline {
-            font-size: 1.375rem;
+            font-size: 1.25rem;
             color: var(--text);
             font-weight: 600;
-            max-width: 750px;
+            max-width: 700px;
             margin: 0 auto 16px;
-            animation: fadeIn 0.6s ease 0.15s both;
-            line-height: 1.4;
+            animation: fadeIn 0.6s ease 0.2s both;
         }
         
         .hero-subtitle {
@@ -191,71 +206,28 @@
             color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto 40px;
-            animation: fadeIn 0.6s ease 0.2s both;
-        }
-        
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-bottom: 60px;
             animation: fadeIn 0.6s ease 0.25s both;
-            flex-wrap: wrap;
         }
         
-        .hero-cta-btn {
-            padding: 16px 32px;
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: white;
             border-radius: var(--radius-md);
             font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            animation: fadeIn 0.6s ease 0.3s both;
         }
         
-        .hero-cta-btn.primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .hero-cta-btn.primary:hover {
+        .hero-cta:hover {
             background: var(--accent-hover);
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
-        }
-        
-        .hero-cta-btn.secondary {
-            background: var(--surface);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .hero-cta-btn.secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        
-        .hero-screenshot {
-            max-width: 1100px;
-            margin: 0 auto;
-            animation: fadeIn 0.8s ease 0.3s both;
-        }
-        
-        .hero-screenshot img {
-            width: 100%;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-        }
-        
-        .screenshot-caption {
-            margin-top: 16px;
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-            font-style: italic;
         }
         
         /* Cost Spiral */
@@ -1040,22 +1012,6 @@
             margin-bottom: 8px;
         }
         
-        .footer-made-by {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-top: 8px;
-        }
-        
-        .footer-made-by a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .footer-made-by a:hover {
-            text-decoration: underline;
-        }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .hero {
@@ -1142,25 +1098,15 @@
         <div class="container">
             <section class="hero">
                 <a href="https://x.com/theallinpod/status/2024157675538243661" target="_blank" class="hero-badge">
-                    Real story: Jason hit $300/day per agent →
+                    Based on Jason Calacanis hitting $300/day per agent →
                 </a>
-                <h1>Stop AI bills before they surprise you</h1>
-                <p class="hero-tagline">Real-time cost tracking with hard budget enforcement. No more $87 surprises on a $50 budget.</p>
-                <p class="hero-subtitle">Native dashboards update every 6 hours. We stop overspend in real-time.</p>
-                
-                <div class="hero-actions">
-                    <a href="#demo" class="hero-cta-btn primary">
-                        Try Live Demo
-                    </a>
-                    <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank" class="hero-cta-btn secondary">
-                        View on GitHub
-                    </a>
-                </div>
-                
-                <div class="hero-screenshot">
-                    <img src="/dashboard-screenshot.png" alt="AI Cost Monitor Dashboard" />
-                    <div class="screenshot-caption">Live dashboard showing real-time costs and budget tracking</div>
-                </div>
+                <h1>We spent $47K on AI agents by accident</h1>
+                <p class="hero-source">(Real story from <a href="https://x.com/theallinpod/status/2024157675538243661" target="_blank">All-In Podcast on Twitter</a>)</p>
+                <p class="hero-tagline">Real-time cost monitoring + hard budget enforcement for AI agents</p>
+                <p class="hero-subtitle">Native dashboards update hours later. We stop overspend in real-time.</p>
+                <a href="#demo" class="hero-cta">
+                    See how we prevent this ↓
+                </a>
             </section>
             
             <div class="cost-spiral">
@@ -1202,6 +1148,56 @@
                 </div>
                 <div class="solution-highlight">
                     <p>✓ Our tool stops at $100. You set the limit. We enforce it in real-time.</p>
+                </div>
+            </div>
+            
+            <div class="calculator">
+                <h3 class="calculator-title">Could this happen to you?</h3>
+                <p class="calculator-subtitle">Calculate your runaway cost risk</p>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Number of agents running</span>
+                        <span class="slider-value" id="agentsValue">10</span>
+                    </div>
+                    <input type="range" id="agents" min="1" max="50" value="10">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Average cost per request</span>
+                        <span class="slider-value" id="costValue">$0.050</span>
+                    </div>
+                    <input type="range" id="costPerRequest" min="0.001" max="0.1" step="0.001" value="0.05">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Requests per day (per agent)</span>
+                        <span class="slider-value" id="requestsValue">5,000</span>
+                    </div>
+                    <input type="range" id="requests" min="100" max="10000" step="100" value="5000">
+                </div>
+                
+                <div class="cost-results">
+                    <div class="cost-result-row">
+                        <span class="cost-result-label">Daily cost</span>
+                        <span class="cost-result-value" id="dailyCost">$2,500</span>
+                    </div>
+                    <div class="cost-result-row">
+                        <span class="cost-result-label">Monthly cost</span>
+                        <span class="cost-result-value" id="monthlyCost">$75,000</span>
+                    </div>
+                    <div class="cost-result-row">
+                        <span class="cost-result-label">If a loop runs wild (10x requests)</span>
+                        <span class="cost-result-value danger" id="runawayCost">$25,000</span>
+                    </div>
+                </div>
+                
+                <div class="cta-container">
+                    <button class="cta-button" onclick="document.getElementById('demo').scrollIntoView({behavior: 'smooth'})">
+                        Prevent this with budget caps ↓
+                    </button>
                 </div>
             </div>
         </div>
@@ -1328,7 +1324,7 @@
                             <li><span class="check">✓</span> Auto-updates</li>
                             <li><span class="check">✓</span> Priority support</li>
                         </ul>
-                        <a href="/cdn-cgi/l/email-protection#d9bfbcbcbdbbb8bab299b8b0b8bebcb7adbab6aaadf7bab6b4e6aaacbbb3bcbaade49ab5b6acbdf98eb8b0adb5b0aaadffbbb6bda0e490febdf9b5b0b2bcf9adb6f9b3b6b0b7f9adb1bcf9aeb8b0adb5b0aaadf9bfb6abf9b4b8b7b8bebcbdf9bab5b6acbdf9b1b6aaadb0b7bef7" class="pricing-cta primary">
+                        <a href="#waitlist" class="pricing-cta primary" onclick="alert('Join waitlist: feedback@aiagentcost.com'); return false;">
                             Join Waitlist
                         </a>
                     </div>
@@ -1399,15 +1395,14 @@
                     <a href="/privacy.html">Privacy Policy</a>
                     <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank">GitHub</a>
                     <a href="https://github.com/Mkiza/ai-agent-cost/issues" target="_blank">Support</a>
-                    <a href="/cdn-cgi/l/email-protection#88eeededeceae9ebe3c8e9e1e9efede6fcebe7fbfca6ebe7e5">Contact</a>
+                    <a href="mailto:feedback@aiagentcost.com">Contact</a>
                 </div>
                 <p class="footer-text">Open source • MIT licensed • Self-hostable</p>
-                <p class="footer-made-by">Built by <a href="https://github.com/Mkiza" target="_blank">@Mkiza</a> • Shipped from Copenhagen 🇩🇰</p>
             </div>
         </div>
     </footer>
     
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
         // Fetch GitHub stars
         async function fetchGitHubStars() {
             try {
@@ -1420,11 +1415,6 @@
         }
         
         fetchGitHubStars();
-        
-        // Auto-load demo dashboard on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            loadCosts();
-        });
         
         // Cost Spiral Animation
         const costs = [50, 340, 3400, 12800, 47000];
@@ -1484,12 +1474,10 @@
             const c = parseFloat(costPerRequest.value);
             const r = parseInt(requests.value);
             
-            // Force update and keep values visible
-            requestAnimationFrame(() => {
-                agentsValue.innerHTML = a.toString();
-                costValue.innerHTML = '$' + c.toFixed(3);
-                requestsValue.innerHTML = r.toLocaleString();
-            });
+            // Update displayed values using innerHTML to ensure they persist
+            agentsValue.innerHTML = a.toString();
+            costValue.innerHTML = '$' + c.toFixed(3);
+            requestsValue.innerHTML = r.toLocaleString();
             
             const daily = a * c * r;
             const monthly = daily * 30;
@@ -1500,21 +1488,12 @@
             runawayCost.innerHTML = '$' + runaway.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
         }
         
-        // Multiple event listeners to ensure values stay
         agents.addEventListener('input', updateCalculator);
         agents.addEventListener('change', updateCalculator);
-        agents.addEventListener('mousedown', updateCalculator);
-        agents.addEventListener('mouseup', updateCalculator);
-        
         costPerRequest.addEventListener('input', updateCalculator);
         costPerRequest.addEventListener('change', updateCalculator);
-        costPerRequest.addEventListener('mousedown', updateCalculator);
-        costPerRequest.addEventListener('mouseup', updateCalculator);
-        
         requests.addEventListener('input', updateCalculator);
         requests.addEventListener('change', updateCalculator);
-        requests.addEventListener('mousedown', updateCalculator);
-        requests.addEventListener('mouseup', updateCalculator);
         
         updateCalculator();
         
@@ -1809,4 +1788,15 @@
         }
         
         function hideLoading() {
-            document.getElementById('
+            document.getElementById('loadingMessage').innerHTML = '';
+        }
+        
+        window.onload = () => {
+            const apiKey = document.getElementById('apiKeyInput').value;
+            if (apiKey === 'demo-customer') {
+                loadCosts();
+            }
+        };
+    </script>
+</body>
+</html>
