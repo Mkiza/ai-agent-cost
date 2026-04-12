@@ -32,6 +32,7 @@ app.get("/health", (req, res) => {
 app.post("/v1/messages", async (req, res) => {
   const startTime = Date.now();
   const customerApiKey = req.headers["x-api-key"];
+  const agentId = req.headers["x-agent-id"] || "default"; // NEW: Extract agent ID
 
   // Validate customer API key exists
   if (!customerApiKey) {
@@ -160,9 +161,10 @@ app.post("/v1/messages", async (req, res) => {
     // Calculate cost
     const cost = calculateCost(model, usage.input_tokens, usage.output_tokens);
 
-    // Log to database (don't wait for it)
+    // Log to database (don't wait for it) - NOW WITH AGENT ID
     logRequest({
       customerApiKey,
+      agentId, // NEW: Include agent ID
       timestamp: Date.now(),
       model,
       inputTokens: usage.input_tokens,
@@ -178,15 +180,17 @@ app.post("/v1/messages", async (req, res) => {
     res.setHeader("X-Cost-Input-USD", cost.inputCost.toFixed(6));
     res.setHeader("X-Cost-Output-USD", cost.outputCost.toFixed(6));
     res.setHeader("X-Cost-Total-USD", cost.totalCost.toFixed(6));
+    res.setHeader("X-Agent-ID", agentId); // NEW: Return agent ID in response
 
     // Return Anthropic's response
     res.json(response.data);
   } catch (error) {
     const duration = Date.now() - startTime;
 
-    // Log failed request
+    // Log failed request - NOW WITH AGENT ID
     logRequest({
       customerApiKey,
+      agentId, // NEW: Include agent ID
       timestamp: Date.now(),
       model: req.body.model || "unknown",
       inputTokens: 0,
@@ -220,6 +224,7 @@ app.listen(PORT, () => {
 app.post("/v1/messages/mock", async (req, res) => {
   const startTime = Date.now();
   const customerApiKey = req.headers["x-api-key"];
+  const agentId = req.headers["x-agent-id"] || "default"; // NEW: Extract agent ID
 
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 500));
@@ -240,9 +245,10 @@ app.post("/v1/messages/mock", async (req, res) => {
   const duration = Date.now() - startTime;
   const cost = calculateCost(req.body.model, 10, 20);
 
-  // Log to database
+  // Log to database - NOW WITH AGENT ID
   await logRequest({
     customerApiKey,
+    agentId, // NEW: Include agent ID
     timestamp: Date.now(),
     model: req.body.model,
     inputTokens: 10,
@@ -255,11 +261,323 @@ app.post("/v1/messages/mock", async (req, res) => {
   });
 
   res.setHeader("X-Cost-Total-USD", cost.totalCost.toFixed(6));
+  res.setHeader("X-Agent-ID", agentId); // NEW: Return agent ID
   res.json(mockResponse);
 });
+
 // Dashboard API - view costs by customer
+// EXPANDED DEMO DATA - 50 entries for realistic demo
+const DEMO_DATA = {
+  requests: [
+    {
+      agentId: "support-bot",
+      cost: 3.42,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "sales-assistant",
+      cost: 1.18,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "content-writer",
+      cost: 5.67,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "code-reviewer",
+      cost: 2.34,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 4.21,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "email-responder",
+      cost: 0.89,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "data-analyzer",
+      cost: 6.45,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 2.87,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "sales-assistant",
+      cost: 1.45,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "doc-generator",
+      cost: 3.21,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 3.89,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "qa-assistant",
+      cost: 1.56,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "translator",
+      cost: 0.67,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "summarizer",
+      cost: 0.45,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "research-bot",
+      cost: 4.32,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 2.98,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 150 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "content-writer",
+      cost: 4.56,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 180 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "email-responder",
+      cost: 0.78,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 200 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "data-analyzer",
+      cost: 5.43,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 220 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "sales-assistant",
+      cost: 1.67,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 240 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "code-reviewer",
+      cost: 3.12,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 260 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 3.45,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 280 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "doc-generator",
+      cost: 2.89,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 300 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "translator",
+      cost: 0.56,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 320 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "summarizer",
+      cost: 0.34,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 340 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "research-bot",
+      cost: 5.67,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 360 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "qa-assistant",
+      cost: 1.89,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 380 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 4.12,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 400 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "content-writer",
+      cost: 3.78,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 420 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "email-responder",
+      cost: 0.91,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 440 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "data-analyzer",
+      cost: 6.23,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 460 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "sales-assistant",
+      cost: 1.34,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 480 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "code-reviewer",
+      cost: 2.67,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 500 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 3.56,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 520 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "doc-generator",
+      cost: 4.12,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 540 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "translator",
+      cost: 0.62,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 560 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "summarizer",
+      cost: 0.48,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 580 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "research-bot",
+      cost: 5.89,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 600 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "qa-assistant",
+      cost: 1.78,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 620 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 4.34,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 640 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "content-writer",
+      cost: 5.12,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 660 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "email-responder",
+      cost: 0.87,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 680 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "data-analyzer",
+      cost: 6.78,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 700 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "sales-assistant",
+      cost: 1.56,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 720 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "code-reviewer",
+      cost: 2.45,
+      model: "claude-sonnet-4",
+      timestamp: new Date(Date.now() - 740 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "support-bot",
+      cost: 3.67,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 760 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "doc-generator",
+      cost: 3.89,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 780 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "translator",
+      cost: 0.71,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 800 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "summarizer",
+      cost: 0.52,
+      model: "claude-haiku-4",
+      timestamp: new Date(Date.now() - 820 * 60 * 1000).toISOString(),
+    },
+    {
+      agentId: "research-bot",
+      cost: 5.23,
+      model: "claude-opus-4",
+      timestamp: new Date(Date.now() - 840 * 60 * 1000).toISOString(),
+    },
+  ],
+};
+
 app.get("/api/costs/:apiKey", (req, res) => {
   const { apiKey } = req.params;
+
+  if (apiKey === "demo-customer") {
+    return res.json(DEMO_DATA);
+  }
 
   db.all(
     `SELECT 
@@ -318,6 +636,31 @@ app.get("/api/costs", (req, res) => {
     },
   );
 });
+
+// NEW: Get costs by agent for a customer
+app.get("/api/costs/:apiKey/agents", (req, res) => {
+  const { apiKey } = req.params;
+
+  db.all(
+    `SELECT 
+      agent_id,
+      COUNT(*) as total_requests,
+      ROUND(SUM(total_cost_usd), 6) as total_cost_usd,
+      MAX(timestamp) as last_request_timestamp
+    FROM requests 
+    WHERE customer_api_key = ? AND status = 'success'
+    GROUP BY agent_id
+    ORDER BY total_cost_usd DESC`,
+    [apiKey],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ agents: rows });
+    },
+  );
+});
+
 // Get budget for a customer
 app.get("/api/budget/:apiKey", async (req, res) => {
   try {

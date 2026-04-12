@@ -1,1812 +1,1536 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent Cost Monitor - Prevent $50K Surprise Bills</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Agent Cost Monitor - Real-time Budget Enforcement</title>
+    <meta
+      name="description"
+      content="Stop AI bills before they surprise you. Real-time cost tracking and hard budget enforcement for AI APIs."
+    />
     <style>
-        :root {
-            --bg: #FAFAFA;
-            --surface: #FFFFFF;
-            --text: #1A1A1A;
-            --text-secondary: #737373;
-            --border: #E5E5E5;
-            --accent: #F97316;
-            --accent-hover: #EA580C;
-            --success: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --radius-sm: 10px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.04);
-            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a1a;
+        --text-secondary: #737373;
+        --border: #e5e5e5;
+        --accent: #f97316;
+        --accent-hover: #ea580c;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --radius-sm: 10px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.04);
+        --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Header */
+      header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .header-nav {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+      }
+
+      .header-nav a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      .header-nav a:hover {
+        color: var(--accent);
+      }
+
+      .github-stars {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+
+      .github-stars:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .header-cta {
+        padding: 8px 16px;
+        background: var(--accent);
+        color: white !important;
+        border-radius: var(--radius-sm);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+
+      .header-cta:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
+      }
+
+      /* Hero */
+      .hero {
+        padding: 80px 0 60px;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: 24px;
+        animation: fadeIn 0.6s ease 0.1s both;
+      }
+
+      .hero-tagline {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 0 auto 40px;
+        line-height: 1.5;
+        animation: fadeIn 0.6s ease 0.2s both;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        animation: fadeIn 0.6s ease 0.3s both;
+        flex-wrap: wrap;
+      }
+
+      .hero-cta-btn {
+        padding: 16px 32px;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .hero-cta-btn.primary {
+        background: var(--accent);
+        color: white;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .hero-cta-btn.primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .hero-cta-btn.secondary {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .hero-cta-btn.secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Problem Timeline */
+      .problem-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 60px 48px;
+        margin: 80px auto;
+        max-width: 1000px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .problem-section h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 48px;
+        letter-spacing: -0.02em;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 40px;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--success), var(--danger));
+      }
+
+      .timeline-item {
+        position: relative;
+        padding-bottom: 32px;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -46px;
+        top: 4px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 3px solid var(--success);
+      }
+
+      .timeline-item.danger::before {
+        border-color: var(--danger);
+      }
+
+      .timeline-time {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .timeline-content {
+        font-size: 1.0625rem;
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      .timeline-highlight {
+        background: rgba(239, 68, 68, 0.08);
+        border-left: 3px solid var(--danger);
+        padding: 16px 20px;
+        margin-top: 32px;
+        border-radius: var(--radius-sm);
+      }
+
+      .timeline-highlight strong {
+        color: var(--danger);
+        font-size: 1.125rem;
+      }
+
+      .timeline-solution {
+        background: rgba(16, 185, 129, 0.08);
+        border-left: 3px solid var(--success);
+        padding: 20px 24px;
+        margin-top: 24px;
+        border-radius: var(--radius-sm);
+      }
+
+      .timeline-solution p {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--success);
+      }
+
+      /* Section */
+      section {
+        padding: 80px 0;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 64px;
+      }
+
+      .section-header h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .section-header p {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* How It Works */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .step {
+        text-align: center;
+      }
+
+      .step-number {
+        width: 48px;
+        height: 48px;
+        background: var(--accent);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 auto 24px;
+      }
+
+      .step h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+
+      .step p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      .step code {
+        display: block;
+        background: var(--bg);
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 0.875rem;
+        margin-top: 12px;
+        text-align: left;
+        overflow-x: auto;
+      }
+
+      /* Comparison Table */
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 20px;
+        text-align: left;
+      }
+
+      .comparison-table thead {
+        background: var(--bg);
+      }
+
+      .comparison-table th {
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+      }
+
+      .comparison-table tbody tr {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .comparison-table tbody tr:last-child {
+        border-bottom: none;
+      }
+
+      .comparison-table td:first-child {
+        font-weight: 500;
+      }
+
+      .comparison-table .highlight {
+        background: rgba(249, 115, 22, 0.05);
+        font-weight: 600;
+      }
+
+      .check {
+        color: var(--success);
+        font-size: 1.25rem;
+      }
+
+      .cross {
+        color: var(--danger);
+        font-size: 1.25rem;
+      }
+
+      /* Pricing */
+      .pricing-section {
+        background: var(--bg);
+      }
+
+      .pricing-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 32px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .pricing-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        position: relative;
+        transition: all 0.3s;
+      }
+
+      .pricing-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+      }
+
+      .pricing-card.featured {
+        border-color: var(--accent);
+      }
+
+      .pricing-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 4px 16px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .pricing-badge.coming-soon {
+        background: var(--warning);
+      }
+
+      .pricing-header {
+        text-align: center;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 24px;
+      }
+
+      .pricing-header h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .pricing-subtitle {
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+      }
+
+      .pricing-price {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .price-amount {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--text);
+        line-height: 1;
+      }
+
+      .price-period {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .pricing-features {
+        list-style: none;
+        margin-bottom: 32px;
+      }
+
+      .pricing-features li {
+        padding: 12px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 0.9375rem;
+      }
+
+      .pricing-features .check {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .pricing-cta {
+        display: block;
+        width: 100%;
+        padding: 14px 24px;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+      }
+
+      .pricing-cta.primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .pricing-cta.primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .pricing-cta.secondary {
+        background: var(--surface);
+        color: var(--text);
+        border: 2px solid var(--border);
+      }
+
+      .pricing-cta.secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Waitlist Form */
+      .waitlist-embed {
+        margin-top: 20px;
+        min-height: 200px;
+      }
+
+      /* Dashboard/Demo */
+      .dashboard-section {
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        padding: 48px;
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Footer */
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 48px 0;
+        margin-top: 80px;
+      }
+
+      .footer-content {
+        text-align: center;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 32px;
+        justify-content: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9375rem;
+        transition: color 0.2s;
+      }
+
+      .footer-links a:hover {
+        color: var(--accent);
+      }
+
+      .footer-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 8px;
+      }
+
+      .footer-made-by {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-top: 8px;
+      }
+
+      .footer-made-by a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .footer-made-by a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+          padding: 0 16px;
         }
-        
-        /* Header */
-        header {
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text);
-            text-decoration: none;
-            letter-spacing: -0.02em;
-        }
-        
-        .header-right {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
-        
-        .github-stars {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            text-decoration: none;
-            color: var(--text);
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        
-        .github-stars:hover {
-            border-color: var(--text-secondary);
-        }
-        
-        .star-icon {
-            color: #F59E0B;
-        }
-        
-        .header-links {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
-        
-        .header-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        
-        .header-links a:hover {
-            color: var(--text);
-        }
-        
-        .header-cta {
-            padding: 8px 16px;
-            background: var(--accent);
-            color: white !important;
-            border-radius: var(--radius-sm);
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        
-        .header-cta:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-        
-        /* Hero */
+
         .hero {
-            padding: 80px 0 60px;
-            text-align: center;
+          padding: 60px 0 40px;
         }
-        
-        .hero-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            font-size: 0.8125rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            animation: fadeIn 0.6s ease;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        
-        .hero-badge:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+
         .hero h1 {
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.03em;
-            margin-bottom: 20px;
-            animation: fadeIn 0.6s ease 0.1s both;
+          font-size: 2rem;
         }
-        
-        .hero-tagline {
-            font-size: 1.375rem;
-            color: var(--text);
-            font-weight: 600;
-            max-width: 750px;
-            margin: 0 auto 16px;
-            animation: fadeIn 0.6s ease 0.15s both;
-            line-height: 1.4;
+
+        .problem-section {
+          padding: 40px 24px;
         }
-        
-        .hero-subtitle {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto 40px;
-            animation: fadeIn 0.6s ease 0.2s both;
+
+        .timeline {
+          padding-left: 32px;
         }
-        
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-bottom: 60px;
-            animation: fadeIn 0.6s ease 0.25s both;
-            flex-wrap: wrap;
-        }
-        
-        .hero-cta-btn {
-            padding: 16px 32px;
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .hero-cta-btn.primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .hero-cta-btn.primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .hero-cta-btn.secondary {
-            background: var(--surface);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .hero-cta-btn.secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        
-        .hero-screenshot {
-            max-width: 1100px;
-            margin: 0 auto;
-            animation: fadeIn 0.8s ease 0.3s both;
-        }
-        
-        .hero-screenshot img {
-            width: 100%;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-        }
-        
-        .screenshot-caption {
-            margin-top: 16px;
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-        
-        /* Cost Spiral */
-        .cost-spiral {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 48px;
-            margin: 80px auto;
-            max-width: 900px;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .spiral-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        
-        .spiral-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
-        }
-        
-        .spiral-subtitle {
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-        }
-        
-        .cost-bars {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 320px;
-            gap: 16px;
-            margin-bottom: 24px;
-            position: relative;
-        }
-        
-        .cost-bar-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .cost-bar {
-            width: 100%;
-            background: linear-gradient(to top, #EF4444, #DC2626);
-            border-radius: 8px 8px 0 0;
-            position: relative;
-            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 0;
-            min-height: 0;
-        }
-        
-        .cost-bar.safe {
-            background: linear-gradient(to top, #10B981, #059669);
-        }
-        
-        .cost-label {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-            text-align: center;
-            min-height: 24px;
-        }
-        
-        .cost-day {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        
-        .spiral-explanation {
-            text-align: center;
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-top: 32px;
-            line-height: 1.7;
-            padding: 20px;
-            background: var(--bg);
-            border-radius: var(--radius-sm);
-        }
-        
-        .spiral-explanation strong {
-            color: var(--danger);
-            font-weight: 700;
-        }
-        
-        .solution-highlight {
-            margin-top: 24px;
-            padding: 24px;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: var(--radius-md);
-            text-align: center;
-        }
-        
-        .solution-highlight p {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--success);
-        }
-        
-        /* Calculator */
-        .calculator {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 56px 48px;
-            margin: 80px auto;
-            max-width: 800px;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .calculator-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            text-align: center;
-            letter-spacing: -0.02em;
-        }
-        
-        .calculator-subtitle {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            margin-bottom: 48px;
-            text-align: center;
-        }
-        
-        .slider-group {
-            margin-bottom: 32px;
-        }
-        
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            font-weight: 500;
-            font-size: 0.9375rem;
-        }
-        
-        .slider-value {
-            color: var(--accent);
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-            min-width: 80px;
-            text-align: right;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: var(--border);
-            outline: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
-            transition: transform 0.2s;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-        }
-        
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.1);
-        }
-        
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
-        }
-        
-        .cost-results {
-            background: var(--bg);
-            border-radius: var(--radius-md);
-            padding: 32px;
-            margin-top: 48px;
-        }
-        
-        .cost-result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-        }
-        
-        .cost-result-row:not(:last-child) {
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .cost-result-row:last-child {
-            padding-top: 24px;
-        }
-        
-        .cost-result-label {
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-        }
-        
-        .cost-result-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .cost-result-value.danger {
-            color: var(--danger);
-            font-size: 2rem;
-        }
-        
-        /* How It Works */
-        .how-it-works {
-            padding: 80px 0;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 56px;
-        }
-        
+
         .section-header h2 {
-            font-size: clamp(1.75rem, 4vw, 2.5rem);
-            font-weight: 800;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
+          font-size: 2rem;
         }
-        
-        .section-header p {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
+
         .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
+          gap: 32px;
         }
-        
-        .step {
-            text-align: center;
-            padding: 32px 24px;
-        }
-        
-        .step-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: var(--accent);
-            color: white;
-            border-radius: 50%;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-        
-        .step h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        
-        .step p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        
-        /* Comparison Table */
-        .comparison-section {
-            padding: 80px 0;
-        }
-        
-        .comparison-table {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-        }
-        
-        .comparison-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .comparison-table th {
-            padding: 20px;
-            background: var(--bg);
-            font-weight: 700;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .comparison-table th:first-child {
-            width: 40%;
-        }
-        
+
+        .comparison-table th,
         .comparison-table td {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
+          padding: 12px;
+          font-size: 0.875rem;
         }
-        
-        .comparison-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .comparison-table .highlight {
-            background: rgba(14, 165, 233, 0.05);
-        }
-        
-        .check {
-            color: var(--success);
-            font-size: 1.25rem;
-        }
-        
-        .cross {
-            color: var(--text-secondary);
-            font-size: 1.25rem;
-        }
-        
-        /* Pricing Section */
-        .pricing-section {
-            padding: 80px 0;
-            background: var(--bg);
-        }
-        
+
         .pricing-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 32px;
-            max-width: 900px;
-            margin: 0 auto;
+          grid-template-columns: 1fr;
+          gap: 24px;
         }
-        
+
         .pricing-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            position: relative;
-            transition: all 0.3s;
+          padding: 32px 24px;
         }
-        
-        .pricing-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-4px);
-        }
-        
-        .pricing-card.featured {
-            border-color: var(--accent);
-            border-width: 2px;
-        }
-        
-        .pricing-badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .pricing-header {
-            text-align: center;
-            margin-bottom: 24px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .pricing-header h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-        
-        .pricing-price {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 4px;
-        }
-        
-        .price-amount {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--text);
-            line-height: 1;
-        }
-        
-        .price-period {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        
-        .pricing-description {
-            text-align: center;
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-            font-size: 0.9375rem;
-        }
-        
-        .pricing-features {
-            list-style: none;
-            margin-bottom: 32px;
-        }
-        
-        .pricing-features li {
-            padding: 12px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.9375rem;
-        }
-        
-        .pricing-features .check {
-            color: var(--success);
-            font-size: 1.125rem;
-            flex-shrink: 0;
-        }
-        
-        .pricing-cta {
-            display: block;
-            width: 100%;
-            padding: 14px 24px;
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .pricing-cta.primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .pricing-cta.primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .pricing-cta.secondary {
-            background: var(--surface);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .pricing-cta.secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        
-        /* CTA Button */
-        .cta-button {
-            display: inline-block;
-            padding: 14px 32px;
-            background: var(--accent);
-            color: white;
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .cta-button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .cta-button:active {
-            transform: translateY(0);
-        }
-        
-        .cta-container {
-            text-align: center;
-            margin-top: 40px;
-        }
-        
-        /* Dashboard Section */
+
         .dashboard-section {
-            padding: 80px 0;
+          padding: 32px 20px;
         }
-        
-        .demo-preview {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-        
-        .demo-preview img {
-            max-width: 100%;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-md);
-        }
-        
-        /* Input Sections */
-        .input-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
-        }
-        
-        .section-description {
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-        
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        
-        input[type="text"],
-        input[type="number"],
-        input[type="email"] {
-            padding: 14px 16px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text);
-            font-size: 0.9375rem;
-            font-family: inherit;
-            transition: all 0.2s;
-            outline: none;
-        }
-        
-        input:focus {
-            border-color: var(--accent);
-            background: var(--surface);
-        }
-        
-        input::placeholder {
-            color: var(--text-secondary);
-        }
-        
-        button {
-            padding: 14px 28px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 0.9375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        
-        button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        /* Status Messages */
-        .status-message {
-            padding: 14px 20px;
-            border-radius: var(--radius-sm);
-            font-size: 0.9375rem;
-            margin-top: 16px;
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        .status-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #047857;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        
-        .status-error {
-            background: rgba(239, 68, 68, 0.1);
-            color: #B91C1C;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 32px;
-            border-radius: var(--radius-lg);
-            transition: all 0.3s;
-        }
-        
-        .stat-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-        
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.8125rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-        
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .stat-value.cost {
-            color: var(--accent);
-        }
-        
-        /* Chart Container */
-        .chart-container {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 40px;
-            border-radius: var(--radius-lg);
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .chart-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 32px;
-            letter-spacing: -0.01em;
-        }
-        
-        canvas {
-            max-height: 350px;
-        }
-        
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 80px 20px;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 20px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-        }
-        
-        .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 24px;
-            opacity: 0.2;
-        }
-        
-        .empty-state h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        
-        .empty-state p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-        
-        /* Footer */
-        footer {
-            padding: 80px 0 40px;
-            border-top: 1px solid var(--border);
-            margin-top: 120px;
-        }
-        
-        .footer-content {
-            text-align: center;
-        }
-        
-        .footer-links {
-            display: flex;
-            gap: 32px;
-            justify-content: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9375rem;
-            transition: color 0.2s;
-        }
-        
-        .footer-links a:hover {
-            color: var(--text);
-        }
-        
-        .footer-text {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 8px;
-        }
-        
-        .footer-made-by {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-top: 8px;
-        }
-        
-        .footer-made-by a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .footer-made-by a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero {
-                padding: 80px 0 60px;
-            }
-            
-            .cost-spiral,
-            .calculator {
-                padding: 32px 24px;
-            }
-            
-            .cost-bars {
-                height: 240px;
-                gap: 12px;
-            }
-            
-            .input-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .input-group {
-                grid-template-columns: 1fr;
-            }
-            
-            button {
-                width: 100%;
-            }
-            
-            .header-right {
-                gap: 12px;
-            }
-            
-            .header-links a:not(.header-cta) {
-                display: none;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .steps {
-                grid-template-columns: 1fr;
-                gap: 32px;
-            }
-            
-            .comparison-table th,
-            .comparison-table td {
-                padding: 12px;
-                font-size: 0.875rem;
-            }
-            
-            .pricing-cards {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-            
-            .pricing-card {
-                padding: 32px 24px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="/" class="logo">AI Cost Monitor</a>
-                <div class="header-right">
-                    <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank" class="github-stars">
-                        <span class="star-icon">★</span>
-                        <span id="starCount">Star</span>
-                    </a>
-                    <div class="header-links">
-                        <a href="/privacy.html">Privacy</a>
-                        <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank">GitHub</a>
-                        <a href="#demo" class="header-cta">Try Demo</a>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="header-content">
+          <a href="/" class="logo">AI Cost Monitor</a>
+          <nav class="header-nav">
+            <a
+              href="https://github.com/Mkiza/ai-agent-cost"
+              target="_blank"
+              class="github-stars"
+            >
+              ⭐ <span id="starCount">GitHub</span>
+            </a>
+            <a href="#demo" class="header-cta">Try Demo</a>
+          </nav>
         </div>
+      </div>
     </header>
-    
+
     <main>
-        <div class="container">
-            <section class="hero">
-                <a href="https://x.com/theallinpod/status/2024157675538243661" target="_blank" class="hero-badge">
-                    Real story: Jason hit $300/day per agent →
-                </a>
-                <h1>Stop AI bills before they surprise you</h1>
-                <p class="hero-tagline">Real-time cost tracking with hard budget enforcement. No more $87 surprises on a $50 budget.</p>
-                <p class="hero-subtitle">Native dashboards update every 6 hours. We stop overspend in real-time.</p>
-                
-                <div class="hero-actions">
-                    <a href="#demo" class="hero-cta-btn primary">
-                        Try Live Demo
-                    </a>
-                    <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank" class="hero-cta-btn secondary">
-                        View on GitHub
-                    </a>
-                </div>
-                
-                <div class="hero-screenshot">
-                    <img src="/dashboard-screenshot.png" alt="AI Cost Monitor Dashboard" />
-                    <div class="screenshot-caption">Live dashboard showing real-time costs and budget tracking</div>
-                </div>
-            </section>
-            
-            <div class="cost-spiral">
-                <div class="spiral-header">
-                    <h3 class="spiral-title">This is what runaway costs look like</h3>
-                    <p class="spiral-subtitle">Watch what happens when a recursion loop runs wild ↓</p>
-                </div>
-                <div class="cost-bars">
-                    <div class="cost-bar-wrapper">
-                        <div class="cost-label" id="label1">$0</div>
-                        <div class="cost-bar safe" id="bar1"></div>
-                        <div class="cost-day">Day 1</div>
-                    </div>
-                    <div class="cost-bar-wrapper">
-                        <div class="cost-label" id="label2">$0</div>
-                        <div class="cost-bar safe" id="bar2"></div>
-                        <div class="cost-day">Day 2</div>
-                    </div>
-                    <div class="cost-bar-wrapper">
-                        <div class="cost-label" id="label3">$0</div>
-                        <div class="cost-bar" id="bar3"></div>
-                        <div class="cost-day">Day 3</div>
-                    </div>
-                    <div class="cost-bar-wrapper">
-                        <div class="cost-label" id="label4">$0</div>
-                        <div class="cost-bar" id="bar4"></div>
-                        <div class="cost-day">Day 4</div>
-                    </div>
-                    <div class="cost-bar-wrapper">
-                        <div class="cost-label" id="label5">$0</div>
-                        <div class="cost-bar" id="bar5"></div>
-                        <div class="cost-day">Day 5</div>
-                    </div>
-                </div>
-                <div class="spiral-explanation">
-                    A recursion loop kept calling the API. Each request spawned more requests. 
-                    <strong>$47,000 in 5 days.</strong><br>
-                    OpenAI's dashboard showed the bill 6 hours later.
-                </div>
-                <div class="solution-highlight">
-                    <p>✓ Our tool stops at $100. You set the limit. We enforce it in real-time.</p>
-                </div>
+      <div class="container">
+        <section class="hero">
+          <h1>Stop AI bills before they surprise you</h1>
+          <p class="hero-tagline">
+            Real-time cost tracking and hard budget enforcement for AI APIs.<br />
+            OpenAI's dashboard updates every 6 hours. We stop overspend
+            instantly.
+          </p>
+          <div class="hero-actions">
+            <a href="#demo" class="hero-cta-btn primary"> Try Live Demo </a>
+            <a
+              href="https://github.com/Mkiza/ai-agent-cost"
+              target="_blank"
+              class="hero-cta-btn secondary"
+            >
+              View on GitHub
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <div class="problem-section">
+        <h2>What happens in 6 hours?</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-time">8:00 AM</div>
+            <div class="timeline-content">
+              You deploy a new AI agent to production
             </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">9:15 AM</div>
+            <div class="timeline-content">
+              A bug causes an infinite loop in your agent
+            </div>
+          </div>
+          <div class="timeline-item danger">
+            <div class="timeline-time">11:30 AM</div>
+            <div class="timeline-content">
+              10,000 API requests sent. Your bill: <strong>$127</strong>
+            </div>
+          </div>
+          <div class="timeline-item danger">
+            <div class="timeline-time">2:00 PM</div>
+            <div class="timeline-content">
+              OpenAI dashboard finally updates. You notice you're $77 over
+              budget.
+            </div>
+          </div>
         </div>
-        
-        <section class="how-it-works">
-            <div class="container">
-                <div class="section-header">
-                    <h2>How It Works</h2>
-                    <p>Three simple steps to prevent runaway costs</p>
-                </div>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <h3>Point to Our Proxy</h3>
-                        <p>Change your API endpoint to our proxy. One line of code. Works with existing setup.</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <h3>Set Budget Limits</h3>
-                        <p>Define daily and monthly caps. Get email alerts when approaching limits.</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <h3>Relax</h3>
-                        <p>We enforce your budgets in real-time. Requests stop when limit hit. No surprise bills.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section class="comparison-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Why Better Than Native Dashboards?</h2>
-                    <p>Real-time enforcement vs. delayed reporting</p>
-                </div>
-                <div class="comparison-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Feature</th>
-                                <th>OpenAI/Anthropic</th>
-                                <th class="highlight">This Tool</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Real-time costs</td>
-                                <td><span class="cross">✗</span> Hours delayed</td>
-                                <td class="highlight"><span class="check">✓</span> Instant</td>
-                            </tr>
-                            <tr>
-                                <td>Budget enforcement</td>
-                                <td><span class="cross">✗</span> Soft limits only</td>
-                                <td class="highlight"><span class="check">✓</span> Hard stops</td>
-                            </tr>
-                            <tr>
-                                <td>Per-agent tracking</td>
-                                <td><span class="cross">✗</span> Account-level only</td>
-                                <td class="highlight"><span class="check">✓</span> Per API key</td>
-                            </tr>
-                            <tr>
-                                <td>Email alerts</td>
-                                <td><span class="cross">✗</span> After the fact</td>
-                                <td class="highlight"><span class="check">✓</span> Preventative</td>
-                            </tr>
-                            <tr>
-                                <td>Open source</td>
-                                <td><span class="cross">✗</span> Closed</td>
-                                <td class="highlight"><span class="check">✓</span> MIT License</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        
-        <section class="pricing-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Pricing</h2>
-                    <p>Start free with self-hosting. Upgrade to managed cloud when ready.</p>
-                </div>
-                <div class="pricing-cards">
-                    <div class="pricing-card">
-                        <div class="pricing-header">
-                            <h3>Free</h3>
-                            <div class="pricing-price">
-                                <span class="price-amount">$0</span>
-                                <span class="price-period">/forever</span>
-                            </div>
-                        </div>
-                        <div class="pricing-description">
-                            Self-hosted on your infrastructure
-                        </div>
-                        <ul class="pricing-features">
-                            <li><span class="check">✓</span> Unlimited agents</li>
-                            <li><span class="check">✓</span> All features</li>
-                            <li><span class="check">✓</span> Budget enforcement</li>
-                            <li><span class="check">✓</span> Real-time tracking</li>
-                            <li><span class="check">✓</span> MIT License</li>
-                        </ul>
-                        <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank" class="pricing-cta secondary">
-                            View on GitHub
-                        </a>
-                    </div>
-                    
-                    <div class="pricing-card featured">
-                        <div class="pricing-badge">Coming Soon</div>
-                        <div class="pricing-header">
-                            <h3>Cloud</h3>
-                            <div class="pricing-price">
-                                <span class="price-amount">$49</span>
-                                <span class="price-period">/month</span>
-                            </div>
-                        </div>
-                        <div class="pricing-description">
-                            Managed hosting, zero setup
-                        </div>
-                        <ul class="pricing-features">
-                            <li><span class="check">✓</span> Everything in Free</li>
-                            <li><span class="check">✓</span> Managed hosting</li>
-                            <li><span class="check">✓</span> Email alerts included</li>
-                            <li><span class="check">✓</span> Auto-updates</li>
-                            <li><span class="check">✓</span> Priority support</li>
-                        </ul>
-                        <a href="/cdn-cgi/l/email-protection#d9bfbcbcbdbbb8bab299b8b0b8bebcb7adbab6aaadf7bab6b4e6aaacbbb3bcbaade49ab5b6acbdf98eb8b0adb5b0aaadffbbb6bda0e490febdf9b5b0b2bcf9adb6f9b3b6b0b7f9adb1bcf9aeb8b0adb5b0aaadf9bfb6abf9b4b8b7b8bebcbdf9bab5b6acbdf9b1b6aaadb0b7bef7" class="pricing-cta primary">
-                            Join Waitlist
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <div class="container">
-            <section class="dashboard-section" id="demo">
-                <div class="section-header">
-                    <h2>Try the Demo</h2>
-                    <p>See real-time cost tracking in action. No signup required.</p>
-                </div>
-                
-                <div class="input-section">
-                    <h3 class="section-title">View Demo Dashboard</h3>
-                    <p class="section-description">Enter "demo-customer" to see a working example with real data</p>
-                    <div class="input-row">
-                        <input
-                            type="text"
-                            id="apiKeyInput"
-                            placeholder="Try: demo-customer"
-                            value="demo-customer"
-                        />
-                        <button onclick="loadCosts()">View Dashboard</button>
-                    </div>
-                </div>
-                
-                <div class="input-section">
-                    <h3 class="section-title">Set Budget Limits</h3>
-                    <p class="section-description">Define your spending caps and get alerts before hitting them</p>
-                    <div class="input-group">
-                        <input
-                            type="number"
-                            id="dailyLimit"
-                            placeholder="Daily limit (USD)"
-                            step="0.01"
-                        />
-                        <input
-                            type="number"
-                            id="monthlyLimit"
-                            placeholder="Monthly limit (USD)"
-                            step="0.01"
-                        />
-                    </div>
-                    <div class="input-row" style="margin-top: 12px;">
-                        <input
-                            type="email"
-                            id="alertEmail"
-                            placeholder="Email for alerts (optional)"
-                        />
-                        <button onclick="setBudget()">Set Budget</button>
-                    </div>
-                    <div id="budgetStatus"></div>
-                </div>
-                
-                <div id="errorMessage"></div>
-                <div id="loadingMessage"></div>
-                <div id="dashboard"></div>
-            </section>
+
+        <div class="timeline-highlight">
+          <strong>Your monthly budget was $50.</strong> You're already 2.5x
+          over.
         </div>
+
+        <div class="timeline-solution">
+          <p>✓ With budget caps: Stopped at request #3,900 when you hit $50</p>
+        </div>
+      </div>
+
+      <section class="how-it-works">
+        <div class="container">
+          <div class="section-header">
+            <h2>How It Works</h2>
+            <p>Three simple steps to prevent runaway costs</p>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <h3>Point your app to the proxy</h3>
+              <p>One line code change. Works with any AI API.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <h3>Set your budget limits</h3>
+              <p>
+                Define daily or monthly caps. Per agent, per model, or global.
+              </p>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <h3>Relax</h3>
+              <p>
+                We track costs in real-time and enforce your limits. No
+                surprises.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <div class="section-header">
+            <h2>Why Better Than Native Dashboards?</h2>
+          </div>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>OpenAI/Anthropic</th>
+                <th class="highlight">This Tool</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cost updates</td>
+                <td>Every 6 hours</td>
+                <td class="highlight"><strong>Real-time</strong></td>
+              </tr>
+              <tr>
+                <td>Budget enforcement</td>
+                <td><span class="cross">✗</span> None</td>
+                <td class="highlight">
+                  <span class="check">✓</span> Hard caps
+                </td>
+              </tr>
+              <tr>
+                <td>Per-agent tracking</td>
+                <td><span class="cross">✗</span> Not supported</td>
+                <td class="highlight">
+                  <span class="check">✓</span> Track each agent
+                </td>
+              </tr>
+              <tr>
+                <td>Instant alerts</td>
+                <td><span class="cross">✗</span> Email (delayed)</td>
+                <td class="highlight">
+                  <span class="check">✓</span> Real-time block
+                </td>
+              </tr>
+              <tr>
+                <td>Custom limits</td>
+                <td><span class="cross">✗</span> Not available</td>
+                <td class="highlight">
+                  <span class="check">✓</span> Per agent/model/time
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="pricing-section" id="pricing">
+        <div class="container">
+          <div class="section-header">
+            <h2>Pricing</h2>
+            <p>
+              Start free with self-hosting. Upgrade to managed cloud when ready.
+            </p>
+          </div>
+          <div class="pricing-cards">
+            <div class="pricing-card">
+              <div class="pricing-badge">Available Now</div>
+              <div class="pricing-header">
+                <h3>Free</h3>
+                <p class="pricing-subtitle">
+                  Self-hosted on your infrastructure
+                </p>
+                <div class="pricing-price">
+                  <span class="price-amount">$0</span>
+                  <span class="price-period">/forever</span>
+                </div>
+              </div>
+              <ul class="pricing-features">
+                <li><span class="check">✓</span> Real-time cost tracking</li>
+                <li><span class="check">✓</span> Hard budget enforcement</li>
+                <li><span class="check">✓</span> Multi-agent support</li>
+                <li><span class="check">✓</span> Per-agent tracking</li>
+                <li><span class="check">✓</span> Open source (MIT)</li>
+              </ul>
+              <a
+                href="https://github.com/Mkiza/ai-agent-cost"
+                target="_blank"
+                class="pricing-cta secondary"
+              >
+                Get Started on GitHub
+              </a>
+            </div>
+
+            <div class="pricing-card featured">
+              <div class="pricing-badge coming-soon">Coming Q3 2026</div>
+              <div class="pricing-header">
+                <h3>Cloud</h3>
+                <p class="pricing-subtitle">Managed hosting, zero setup</p>
+                <div class="pricing-price">
+                  <span class="price-amount">$19</span>
+                  <span class="price-period">/month</span>
+                </div>
+              </div>
+              <ul class="pricing-features">
+                <li><span class="check">✓</span> Everything in Free</li>
+                <li>
+                  <span class="check">✓</span> Managed hosting (zero setup)
+                </li>
+                <li><span class="check">✓</span> Automatic updates</li>
+                <li><span class="check">✓</span> 99.9% uptime SLA</li>
+                <li><span class="check">✓</span> Email alerts included</li>
+                <li><span class="check">✓</span> Priority support</li>
+              </ul>
+              <button
+                class="pricing-cta primary"
+                onclick="toggleWaitlist()"
+                id="waitlistButton"
+              >
+                Join Waitlist
+              </button>
+              <div
+                class="waitlist-embed"
+                id="waitlistForm"
+                style="display: none"
+              >
+                <iframe
+                  data-tally-src="https://tally.so/embed/pb7vMP?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+                  loading="lazy"
+                  width="100%"
+                  height="120"
+                  frameborder="0"
+                  marginheight="0"
+                  marginwidth="0"
+                  title="Waitlist Sign Up"
+                >
+                </iframe>
+              </div>
+              <p
+                style="
+                  margin-top: 20px;
+                  font-size: 0.875rem;
+                  color: var(--text-secondary);
+                  text-align: center;
+                  font-style: italic;
+                "
+              >
+                Why $19? Our hosting cost + small margin. No markup.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <section class="dashboard-section" id="demo">
+          <div class="section-header" style="margin-bottom: 40px">
+            <h2>Try It Live</h2>
+            <p>
+              Live demo showing what the dashboard looks like. Self-host to
+              track your own costs.
+            </p>
+          </div>
+
+          <!-- Dashboard will load here -->
+          <div id="dashboard"></div>
+          <div id="errorMessage"></div>
+          <div id="loadingMessage"></div>
+
+          <!-- Demo controls -->
+          <div
+            style="
+              background: var(--bg);
+              padding: 32px;
+              border-radius: var(--radius-lg);
+              margin-top: 48px;
+              text-align: center;
+            "
+          >
+            <h3 style="font-size: 1.125rem; margin-bottom: 8px">
+              Want to track your own costs?
+            </h3>
+            <p
+              style="
+                color: var(--text-secondary);
+                margin-bottom: 24px;
+                font-size: 0.9375rem;
+              "
+            >
+              Self-host this tool (5 min setup) to track your actual API
+              spending
+            </p>
+            <a
+              href="https://github.com/Mkiza/ai-agent-cost#quick-start"
+              target="_blank"
+              style="
+                display: inline-block;
+                padding: 12px 24px;
+                background: var(--accent);
+                color: white;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 0.9375rem;
+                text-decoration: none;
+                transition: all 0.2s;
+              "
+              onmouseover="this.style.background = 'var(--accent-hover)'"
+              onmouseout="this.style.background = 'var(--accent)'"
+            >
+              View Setup Guide →
+            </a>
+            <p
+              style="
+                color: var(--text-secondary);
+                margin-top: 16px;
+                font-size: 0.875rem;
+              "
+            >
+              Or
+              <a href="#pricing" style="color: var(--accent)"
+                >join the waitlist</a
+              >
+              for managed cloud hosting
+            </p>
+          </div>
+
+          <!-- Budget demo section -->
+          <div
+            style="
+              background: var(--bg);
+              padding: 32px;
+              border-radius: var(--radius-lg);
+              margin-top: 24px;
+            "
+          >
+            <h3 style="font-size: 1.125rem; margin-bottom: 8px">
+              See How Budget Limits Work
+            </h3>
+            <p
+              style="
+                color: var(--text-secondary);
+                margin-bottom: 24px;
+                font-size: 0.9375rem;
+              "
+            >
+              Set demo limits to see how the tool enforces budgets
+            </p>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 12px;
+                margin-bottom: 16px;
+              "
+            >
+              <input
+                type="number"
+                id="dailyLimit"
+                placeholder="Daily limit (USD)"
+                step="0.01"
+                value="50"
+                style="
+                  padding: 12px 16px;
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius-sm);
+                  font-size: 0.9375rem;
+                "
+              />
+              <input
+                type="number"
+                id="monthlyLimit"
+                placeholder="Monthly limit (USD)"
+                step="0.01"
+                value="250"
+                style="
+                  padding: 12px 16px;
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius-sm);
+                  font-size: 0.9375rem;
+                "
+              />
+            </div>
+            <button
+              onclick="setBudget()"
+              style="
+                padding: 12px 24px;
+                background: var(--surface);
+                color: var(--text);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 0.9375rem;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.borderColor = 'var(--accent)';
+                this.style.color = 'var(--accent)';
+              "
+              onmouseout="
+                this.style.borderColor = 'var(--border)';
+                this.style.color = 'var(--text)';
+              "
+            >
+              Preview Budget Alert
+            </button>
+            <div id="budgetStatus" style="margin-top: 16px"></div>
+          </div>
+        </section>
+      </div>
     </main>
-    
+
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-links">
-                    <a href="/privacy.html">Privacy Policy</a>
-                    <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank">GitHub</a>
-                    <a href="https://github.com/Mkiza/ai-agent-cost/issues" target="_blank">Support</a>
-                    <a href="/cdn-cgi/l/email-protection#88eeededeceae9ebe3c8e9e1e9efede6fcebe7fbfca6ebe7e5">Contact</a>
-                </div>
-                <p class="footer-text">Open source • MIT licensed • Self-hostable</p>
-                <p class="footer-made-by">Built by <a href="https://github.com/Mkiza" target="_blank">@Mkiza</a> • Shipped from Copenhagen 🇩🇰</p>
-            </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="/privacy.html">Privacy</a>
+            <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank"
+              >GitHub</a
+            >
+            <a
+              href="https://github.com/Mkiza/ai-agent-cost/issues"
+              target="_blank"
+              >Issues</a
+            >
+            <a href="mailto:feedback@aiagentcost.com">Contact</a>
+          </div>
+          <p class="footer-text">Open source • MIT licensed • Self-hostable</p>
+          <p class="footer-made-by">
+            Built by
+            <a href="https://github.com/Mkiza" target="_blank">@Mkiza</a> •
+            Shipped from Copenhagen 🇩🇰
+          </p>
         </div>
+      </div>
     </footer>
-    
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        // Fetch GitHub stars
-        async function fetchGitHubStars() {
-            try {
-                const response = await fetch('https://api.github.com/repos/Mkiza/ai-agent-cost');
-                const data = await response.json();
-                document.getElementById('starCount').textContent = (data.stargazers_count || 0) + ' Stars';
-            } catch (error) {
-                console.log('Could not fetch GitHub stars');
-            }
+
+    <script>
+      // Fetch GitHub stars
+      async function fetchGitHubStars() {
+        try {
+          const response = await fetch(
+            "https://api.github.com/repos/Mkiza/ai-agent-cost",
+          );
+          const data = await response.json();
+          document.getElementById("starCount").textContent =
+            (data.stargazers_count || 0) + " Stars";
+        } catch (error) {
+          console.error("Error fetching GitHub stars:", error);
         }
-        
-        fetchGitHubStars();
-        
-        // Auto-load demo dashboard on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            loadCosts();
-        });
-        
-        // Cost Spiral Animation
-        const costs = [50, 340, 3400, 12800, 47000];
-        const bars = ['bar1', 'bar2', 'bar3', 'bar4', 'bar5'];
-        const labels = ['label1', 'label2', 'label3', 'label4', 'label5'];
-        let animationPlayed = false;
-        
-        function animateCostSpiral() {
-            // Reset all bars first
-            bars.forEach(barId => {
-                document.getElementById(barId).style.height = '0%';
-            });
-            
-            costs.forEach((cost, index) => {
-                setTimeout(() => {
-                    const percentage = (cost / 47000) * 100;
-                    const bar = document.getElementById(bars[index]);
-                    const label = document.getElementById(labels[index]);
+      }
+
+      fetchGitHubStars();
+
+      // Auto-load demo dashboard on page load
+      window.addEventListener("DOMContentLoaded", () => {
+        loadCosts();
+      });
+
+      // Dashboard Functions
+      async function loadCosts() {
+        console.log("loadCosts called");
+
+        clearError();
+        showLoading();
+
+        try {
+          const url = `/api/costs/demo-customer`;
+          console.log("Fetching:", url);
+          const response = await fetch(url);
+          console.log("Response:", response);
+
+          if (!response.ok) {
+            console.warn("Backend not available, using hardcoded demo data");
+            // Fallback to hardcoded demo data
+            hideLoading();
+            displayDashboard(getHardcodedDemoData());
+            return;
+          }
+
+          const data = await response.json();
+          console.log("Data received:", data);
+          hideLoading();
+          displayDashboard(data);
+        } catch (error) {
+          console.error(
+            "Error in loadCosts, falling back to demo data:",
+            error,
+          );
+          hideLoading();
+          displayDashboard(getHardcodedDemoData());
+        }
+      }
+
+      function getHardcodedDemoData() {
+        // Hardcoded demo data for when backend isn't ready
+        const now = Date.now();
+        return {
+          requests: [
+            {
+              agentId: "support-bot",
+              cost: 3.42,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "sales-assistant",
+              cost: 1.18,
+              model: "claude-sonnet-4",
+              timestamp: new Date(now - 4 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "content-writer",
+              cost: 5.67,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "code-reviewer",
+              cost: 2.34,
+              model: "claude-sonnet-4",
+              timestamp: new Date(now - 8 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "support-bot",
+              cost: 4.21,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 10 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "email-responder",
+              cost: 0.89,
+              model: "claude-haiku-4",
+              timestamp: new Date(now - 1 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "data-analyzer",
+              cost: 6.45,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "support-bot",
+              cost: 2.87,
+              model: "claude-sonnet-4",
+              timestamp: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "sales-assistant",
+              cost: 1.45,
+              model: "claude-sonnet-4",
+              timestamp: new Date(now - 7 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "doc-generator",
+              cost: 3.21,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 9 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "support-bot",
+              cost: 3.89,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 11 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "qa-assistant",
+              cost: 1.56,
+              model: "claude-sonnet-4",
+              timestamp: new Date(now - 30 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "translator",
+              cost: 0.67,
+              model: "claude-haiku-4",
+              timestamp: new Date(now - 45 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "summarizer",
+              cost: 0.45,
+              model: "claude-haiku-4",
+              timestamp: new Date(now - 90 * 60 * 1000).toISOString(),
+            },
+            {
+              agentId: "research-bot",
+              cost: 4.32,
+              model: "claude-opus-4",
+              timestamp: new Date(now - 120 * 60 * 1000).toISOString(),
+            },
+          ],
+        };
+      }
+
+      function setBudget() {
+        const daily = document.getElementById("dailyLimit").value;
+        const monthly = document.getElementById("monthlyLimit").value;
+
+        const statusDiv = document.getElementById("budgetStatus");
+
+        if (!daily && !monthly) {
+          statusDiv.innerHTML =
+            '<div style="color: var(--danger); font-size: 0.875rem;">Please enter at least one budget limit</div>';
+          return;
+        }
+
+        let budgetText = [];
+        if (daily) budgetText.push(`$${daily}/day`);
+        if (monthly) budgetText.push(`$${monthly}/month`);
+
+        statusDiv.innerHTML = `
+                <div style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.875rem;">
+                    ✓ Budget demo set: ${budgetText.join(", ")}
+                    <br><small style="opacity: 0.8; margin-top: 4px; display: block;">This is demo only. For real enforcement, self-host the tool.</small>
+                </div>
+            `;
+
+        setTimeout(() => {
+          statusDiv.innerHTML = "";
+        }, 5000);
+      }
+
+      function displayDashboard(data) {
+        const dashboard = document.getElementById("dashboard");
+
+        console.log("Displaying dashboard with data:", data);
+
+        // Handle your backend's data structure
+        if (data.customers && data.customers.length > 0) {
+          // Your actual backend format
+          const customers = data.customers;
+          const totalRequests = customers.reduce(
+            (sum, c) => sum + c.total_requests,
+            0,
+          );
+          const totalCost = customers.reduce(
+            (sum, c) => sum + c.total_cost_usd,
+            0,
+          );
+
+          dashboard.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 40px;">
+                        <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 8px;">Total Requests</div>
+                            <div style="font-size: 2rem; font-weight: 700;">${totalRequests.toLocaleString()}</div>
+                        </div>
+                        <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 8px;">Total Cost</div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--accent);">$${totalCost.toFixed(4)}</div>
+                        </div>
+                        <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 8px;">API Keys Tracked</div>
+                            <div style="font-size: 2rem; font-weight: 700;">${customers.length}</div>
+                        </div>
+                    </div>
                     
-                    bar.style.height = percentage + '%';
-                    label.textContent = '$' + cost.toLocaleString();
-                }, index * 600);
-            });
-            
-            animationPlayed = true;
-        }
-        
-        // Intersection Observer for animation on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !animationPlayed) {
-                    setTimeout(animateCostSpiral, 300);
-                }
-            });
-        }, { threshold: 0.3 });
-        
-        const spiralSection = document.querySelector('.cost-spiral');
-        if (spiralSection) {
-            observer.observe(spiralSection);
-        }
-        
-        // Calculator
-        const agents = document.getElementById('agents');
-        const costPerRequest = document.getElementById('costPerRequest');
-        const requests = document.getElementById('requests');
-        
-        const agentsValue = document.getElementById('agentsValue');
-        const costValue = document.getElementById('costValue');
-        const requestsValue = document.getElementById('requestsValue');
-        
-        const dailyCost = document.getElementById('dailyCost');
-        const monthlyCost = document.getElementById('monthlyCost');
-        const runawayCost = document.getElementById('runawayCost');
-        
-        function updateCalculator() {
-            const a = parseInt(agents.value);
-            const c = parseFloat(costPerRequest.value);
-            const r = parseInt(requests.value);
-            
-            // Force update and keep values visible
-            requestAnimationFrame(() => {
-                agentsValue.innerHTML = a.toString();
-                costValue.innerHTML = '$' + c.toFixed(3);
-                requestsValue.innerHTML = r.toLocaleString();
-            });
-            
-            const daily = a * c * r;
-            const monthly = daily * 30;
-            const runaway = daily * 10;
-            
-            dailyCost.innerHTML = '$' + daily.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
-            monthlyCost.innerHTML = '$' + monthly.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
-            runawayCost.innerHTML = '$' + runaway.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
-        }
-        
-        // Multiple event listeners to ensure values stay
-        agents.addEventListener('input', updateCalculator);
-        agents.addEventListener('change', updateCalculator);
-        agents.addEventListener('mousedown', updateCalculator);
-        agents.addEventListener('mouseup', updateCalculator);
-        
-        costPerRequest.addEventListener('input', updateCalculator);
-        costPerRequest.addEventListener('change', updateCalculator);
-        costPerRequest.addEventListener('mousedown', updateCalculator);
-        costPerRequest.addEventListener('mouseup', updateCalculator);
-        
-        requests.addEventListener('input', updateCalculator);
-        requests.addEventListener('change', updateCalculator);
-        requests.addEventListener('mousedown', updateCalculator);
-        requests.addEventListener('mouseup', updateCalculator);
-        
-        updateCalculator();
-        
-        // Dashboard Functions
-        let costChart = null;
-        let tokenChart = null;
-        
-        async function loadCosts() {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            
-            if (!apiKey) {
-                showError('Please enter an API key');
-                return;
-            }
-            
-            showLoading();
-            clearError();
-            
-            try {
-                const response = await fetch(`/api/costs/${apiKey}`);
-                const data = await response.json();
-                
-                if (data.error) {
-                    showError(data.error);
-                    return;
-                }
-                
-                if (!data.daily_breakdown || data.daily_breakdown.length === 0) {
-                    showEmptyState();
-                    return;
-                }
-                
-                renderDashboard(data);
-            } catch (error) {
-                showError('Failed to load costs: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
-        
-        function renderDashboard(data) {
-            const dashboard = document.getElementById('dashboard');
-            const summary = data.summary;
-            const daily = data.daily_breakdown;
-            
-            dashboard.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Requests</div>
-                        <div class="stat-value">${summary.total_requests.toLocaleString()}</div>
+                    <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                        <h3 style="margin-bottom: 20px; font-size: 1.125rem;">Cost by Customer</h3>
+                        ${customers
+                          .sort((a, b) => b.total_cost_usd - a.total_cost_usd)
+                          .map((customer) => {
+                            const lastRequest = new Date(
+                              customer.last_request_timestamp,
+                            );
+                            return `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border);">
+                                        <div>
+                                            <div style="font-weight: 500;">${customer.customer_api_key}</div>
+                                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+                                                ${customer.total_requests} requests • Last: ${lastRequest.toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <span style="color: var(--accent); font-weight: 600; font-size: 1.125rem;">$${customer.total_cost_usd.toFixed(4)}</span>
+                                    </div>
+                                `;
+                          })
+                          .join("")}
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Cost</div>
-                        <div class="stat-value cost">$${parseFloat(summary.total_cost_usd).toFixed(4)}</div>
+                `;
+          return;
+        }
+
+        // Fallback for old format or empty data
+        if (!data.requests || data.requests.length === 0) {
+          dashboard.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                        <h3 style="margin-bottom: 12px;">No data yet</h3>
+                        <p>Demo data will appear here once configured</p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Avg / Request</div>
-                        <div class="stat-value cost">$${(parseFloat(summary.total_cost_usd) / summary.total_requests).toFixed(6)}</div>
+                `;
+          return;
+        }
+
+        // Old format (from DEMO_DATA with agents)
+        const totalCost = data.requests.reduce((sum, req) => sum + req.cost, 0);
+        const totalRequests = data.requests.length;
+
+        const byAgent = {};
+        data.requests.forEach((req) => {
+          if (!byAgent[req.agentId]) {
+            byAgent[req.agentId] = { requests: 0, cost: 0 };
+          }
+          byAgent[req.agentId].requests++;
+          byAgent[req.agentId].cost += req.cost;
+        });
+
+        // Get top 5 agents by cost
+        const topAgents = Object.entries(byAgent)
+          .sort((a, b) => b[1].cost - a[1].cost)
+          .slice(0, 5);
+
+        const maxCost = topAgents[0][1].cost;
+
+        dashboard.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 40px;">
+                    <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 8px;">Total Requests</div>
+                        <div style="font-size: 2rem; font-weight: 700;">${totalRequests.toLocaleString()}</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Last Request</div>
-                        <div class="stat-value" style="font-size: 1.5rem;">${new Date(daily[0].date).toLocaleDateString()}</div>
+                    <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 8px;">Total Cost</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--accent);">$${totalCost.toFixed(2)}</div>
+                    </div>
+                    <div style="background: var(--bg); padding: 24px; border-radius: var(--radius-md);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 8px;">Active Agents</div>
+                        <div style="font-size: 2rem; font-weight: 700;">${Object.keys(byAgent).length}</div>
                     </div>
                 </div>
                 
-                <div class="chart-container">
-                    <h3 class="chart-title">Daily Cost Breakdown</h3>
-                    <canvas id="costChart"></canvas>
+                <div style="background: var(--bg); padding: 32px; border-radius: var(--radius-md); margin-bottom: 32px;">
+                    <h3 style="margin-bottom: 24px; font-size: 1.125rem; font-weight: 600;">Top Agents by Cost</h3>
+                    ${topAgents
+                      .map(([agent, stats]) => {
+                        const percentage = (stats.cost / maxCost) * 100;
+                        return `
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="font-weight: 500; font-size: 0.9375rem;">${agent}</span>
+                                    <span style="color: var(--accent); font-weight: 600;">$${stats.cost.toFixed(2)}</span>
+                                </div>
+                                <div style="background: var(--border); height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--accent); height: 100%; width: ${percentage}%; border-radius: 4px; transition: width 0.5s ease;"></div>
+                                </div>
+                                <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 4px;">${stats.requests} requests</div>
+                            </div>
+                        `;
+                      })
+                      .join("")}
                 </div>
                 
-                <div class="chart-container">
-                    <h3 class="chart-title">Token Usage</h3>
-                    <canvas id="tokenChart"></canvas>
+                <div style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.05), rgba(249, 115, 22, 0.02)); border: 1px solid rgba(249, 115, 22, 0.2); padding: 32px; border-radius: var(--radius-md); text-align: center;">
+                    <div style="font-size: 1.5rem; margin-bottom: 8px;">📊</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 12px;">Want Advanced Analytics?</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                        The Cloud version includes visual dashboards with cost trends, forecasting, anomaly detection, and detailed reports.
+                    </p>
+                    <button onclick="document.getElementById('pricing').scrollIntoView({behavior: 'smooth'}); setTimeout(() => toggleWaitlist(), 500);" style="display: inline-block; padding: 12px 24px; background: var(--accent); color: white; text-decoration: none; border: none; border-radius: var(--radius-sm); font-weight: 600; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
+                        Join Waitlist →
+                    </button>
                 </div>
             `;
-            
-            renderCharts(daily);
-        }
-        
-        function renderCharts(daily) {
-            const costCtx = document.getElementById('costChart').getContext('2d');
-            
-            if (costChart) costChart.destroy();
-            
-            costChart = new Chart(costCtx, {
-                type: 'bar',
-                data: {
-                    labels: daily.map(d => new Date(d.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})).reverse(),
-                    datasets: [{
-                        label: 'Daily Cost (USD)',
-                        data: daily.map(d => d.daily_cost_usd).reverse(),
-                        backgroundColor: 'rgba(14, 165, 233, 0.8)',
-                        borderColor: 'rgba(14, 165, 233, 1)',
-                        borderWidth: 0,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(26, 26, 26, 0.95)',
-                            padding: 12,
-                            titleFont: { size: 13, weight: 600 },
-                            bodyFont: { size: 14, weight: 700 },
-                            borderColor: 'rgba(229, 229, 229, 0.2)',
-                            borderWidth: 1,
-                            displayColors: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            border: { display: false },
-                            grid: { 
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                drawTicks: false
-                            },
-                            ticks: {
-                                color: '#737373',
-                                padding: 8,
-                                font: { size: 12 },
-                                callback: value => '$' + value.toFixed(4)
-                            }
-                        },
-                        x: {
-                            border: { display: false },
-                            grid: { display: false },
-                            ticks: {
-                                color: '#737373',
-                                padding: 8,
-                                font: { size: 12 }
-                            }
-                        }
+      }
+
+      function showError(message) {
+        document.getElementById("errorMessage").innerHTML =
+          `<div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 16px; border-radius: var(--radius-sm); text-align: center; margin: 20px 0;">${message}</div>`;
+        setTimeout(
+          () => (document.getElementById("errorMessage").innerHTML = ""),
+          5000,
+        );
+      }
+
+      function clearError() {
+        document.getElementById("errorMessage").innerHTML = "";
+      }
+
+      function showLoading() {
+        document.getElementById("loadingMessage").innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <div style="display: inline-block; width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 16px;">Loading demo data...</p>
+                </div>
+                <style>
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
                     }
-                }
-            });
-            
-            const tokenCtx = document.getElementById('tokenChart').getContext('2d');
-            
-            if (tokenChart) tokenChart.destroy();
-            
-            tokenChart = new Chart(tokenCtx, {
-                type: 'line',
-                data: {
-                    labels: daily.map(d => new Date(d.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})).reverse(),
-                    datasets: [
-                        {
-                            label: 'Input Tokens',
-                            data: daily.map(d => d.total_input_tokens).reverse(),
-                            borderColor: 'rgba(14, 165, 233, 1)',
-                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 0,
-                            pointHoverRadius: 4
-                        },
-                        {
-                            label: 'Output Tokens',
-                            data: daily.map(d => d.total_output_tokens).reverse(),
-                            borderColor: 'rgba(115, 115, 115, 1)',
-                            backgroundColor: 'rgba(115, 115, 115, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 0,
-                            pointHoverRadius: 4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            align: 'end',
-                            labels: {
-                                color: '#737373',
-                                font: { size: 12 },
-                                padding: 16,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(26, 26, 26, 0.95)',
-                            padding: 12,
-                            titleFont: { size: 13, weight: 600 },
-                            bodyFont: { size: 14 },
-                            borderColor: 'rgba(229, 229, 229, 0.2)',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            border: { display: false },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                drawTicks: false
-                            },
-                            ticks: {
-                                color: '#737373',
-                                padding: 8,
-                                font: { size: 12 }
-                            }
-                        },
-                        x: {
-                            border: { display: false },
-                            grid: { display: false },
-                            ticks: {
-                                color: '#737373',
-                                padding: 8,
-                                font: { size: 12 }
-                            }
-                        }
-                    }
-                }
-            });
+                </style>
+            `;
+      }
+
+      function hideLoading() {
+        document.getElementById("loadingMessage").innerHTML = "";
+      }
+
+      // Waitlist toggle
+      function toggleWaitlist() {
+        const form = document.getElementById("waitlistForm");
+        const button = document.getElementById("waitlistButton");
+
+        if (form.style.display === "none") {
+          form.style.display = "block";
+          button.textContent = "Hide Form";
+          button.style.background = "var(--text-secondary)";
+        } else {
+          form.style.display = "none";
+          button.textContent = "Join Waitlist";
+          button.style.background = "var(--accent)";
         }
-        
-        async function setBudget() {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            const dailyLimit = parseFloat(document.getElementById('dailyLimit').value) || null;
-            const monthlyLimit = parseFloat(document.getElementById('monthlyLimit').value) || null;
-            const alertEmail = document.getElementById('alertEmail').value.trim() || null;
-            
-            if (!apiKey) {
-                showError('Please enter an API key first');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/budget/${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        daily_limit: dailyLimit, 
-                        monthly_limit: monthlyLimit,
-                        alert_email: alertEmail
-                    })
+      }
+
+      // Load Tally embed script
+      var d = document,
+        w = "https://tally.so/widgets/embed.js",
+        v = function () {
+          "undefined" != typeof Tally
+            ? Tally.loadEmbeds()
+            : d
+                .querySelectorAll("iframe[data-tally-src]:not([src])")
+                .forEach(function (e) {
+                  e.src = e.dataset.tallySrc;
                 });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    const statusEl = document.getElementById('budgetStatus');
-                    statusEl.innerHTML = '<div class="status-message status-success">Budget set successfully</div>';
-                    setTimeout(() => statusEl.innerHTML = '', 5000);
-                }
-            } catch (error) {
-                showError('Failed to set budget: ' + error.message);
-            }
-        }
-        
-        function showEmptyState() {
-            document.getElementById('dashboard').innerHTML = `
-                <div class="input-section">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>No data yet</h3>
-                        <p>Send requests through the proxy to see your costs here</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function showError(message) {
-            document.getElementById('errorMessage').innerHTML = 
-                `<div class="input-section"><div class="status-message status-error">${message}</div></div>`;
-            setTimeout(() => document.getElementById('errorMessage').innerHTML = '', 5000);
-        }
-        
-        function clearError() {
-            document.getElementById('errorMessage').innerHTML = '';
-        }
-        
-        function showLoading() {
-            document.getElementById('loadingMessage').innerHTML = `
-                <div class="input-section">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <p style="color: var(--text-secondary);">Loading costs...</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function hideLoading() {
-            document.getElementById('
+        };
+      if ("undefined" != typeof Tally) v();
+      else if (d.querySelector('script[src="' + w + '"]') == null) {
+        var s = d.createElement("script");
+        s.src = w;
+        s.onload = v;
+        s.onerror = v;
+        d.body.appendChild(s);
+      }
+    </script>
+  </body>
+</html>

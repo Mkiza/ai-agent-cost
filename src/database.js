@@ -29,6 +29,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS requests (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       customer_api_key TEXT NOT NULL,
+      agent_id TEXT DEFAULT 'default',
       timestamp INTEGER NOT NULL,
       model TEXT NOT NULL,
       input_tokens INTEGER NOT NULL,
