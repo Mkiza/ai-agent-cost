@@ -43,9 +43,9 @@ Point your Anthropic API calls to the Costile proxy:
 
 ```bash
 # Instead of: https://api.anthropic.com/v1/messages
-# Use: https://ai-agent-cost-production.up.railway.app/v1/messages
+# Use: https://costile.com/v1/messages
 
-curl -X POST https://ai-agent-cost-production.up.railway.app/v1/messages \
+curl -X POST https://costile.com/v1/messages \
   -H "x-api-key: YOUR-UNIQUE-KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -55,7 +55,7 @@ curl -X POST https://ai-agent-cost-production.up.railway.app/v1/messages \
   }'
 ```
 
-View your costs at: `https://ai-agent-cost-production.up.railway.app`
+View your costs at: `https://costile.com`
 
 ---
 
@@ -70,7 +70,7 @@ A lot can go wrong in 6 hours:
 - **11:30 AM** — 10,000 requests later, your bill reads $127. You have no idea.
 - **2:00 PM** — The provider dashboard finally refreshes. You're $77 over budget.
 
-Provider dashboards update every 6 hours. By the time you see the number, the damage is done.
+Provider dashboards don't update in real time. By the time you see the number, the damage is done.
 
 ### The Solution
 
