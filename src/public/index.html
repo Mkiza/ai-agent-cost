@@ -3,11 +3,157 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Costile - Your AI agents are burning money</title>
+    <title>Costile – Real-Time AI API Cost Tracking & Budget Enforcement</title>
     <meta
       name="description"
-      content="Real-time AI cost tracking and hard budget enforcement. Your AI agents are burning money and you won't know for 6 hours. Costile stops runaway spend instantly. Open source, self-hostable."
+      content="Costile is an open-source AI cost monitoring proxy for Anthropic Claude and OpenAI. Track token spend per agent in real time, enforce hard budget caps, and stop runaway AI API costs before they hit your invoice."
     />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://costile.com/" />
+
+    <!-- Performance: preconnect to third-party origins -->
+    <link
+      rel="preconnect"
+      href="https://ai-agent-cost-production.up.railway.app"
+    />
+    <link rel="preconnect" href="https://tally.so" />
+    <link rel="preconnect" href="https://api.github.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Mobile browser chrome colour -->
+    <meta name="theme-color" content="#F97316" />
+
+    <!-- Keywords (secondary signal, still worth having) -->
+    <meta
+      name="keywords"
+      content="AI API cost monitoring, Anthropic budget limit, OpenAI cost tracking, AI agent spend monitoring, real-time AI cost tracking, AI proxy budget enforcement, Claude API cost, token cost tracker, open source AI monitoring"
+    />
+
+    <!-- Author / robots -->
+    <meta name="author" content="Costile" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph (LinkedIn, Facebook, Slack unfurl) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://costile.com/" />
+    <meta property="og:site_name" content="Costile" />
+    <meta
+      property="og:title"
+      content="Costile – Real-Time AI API Cost Tracking & Budget Enforcement"
+    />
+    <meta
+      property="og:description"
+      content="Open-source proxy that tracks every AI token in real time and enforces hard budget caps on Anthropic Claude & OpenAI. Stop surprise bills before they happen."
+    />
+    <meta property="og:image" content="https://costile.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Mkiza" />
+    <meta
+      name="twitter:title"
+      content="Costile – Real-Time AI API Cost Tracking & Budget Enforcement"
+    />
+    <meta
+      name="twitter:description"
+      content="Open-source proxy that tracks every AI token in real time and enforces hard budget caps. Stop runaway AI agent spend instantly."
+    />
+    <meta name="twitter:image" content="https://costile.com/og-image.png" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Costile",
+            "url": "https://costile.com",
+            "description": "Real-time AI API cost tracking and hard budget enforcement proxy for Anthropic Claude and OpenAI. Open source, self-hostable, MIT licensed.",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Any",
+            "offers": [
+              {
+                "@type": "Offer",
+                "name": "Free (Self-hosted)",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              {
+                "@type": "Offer",
+                "name": "Basic",
+                "price": "19",
+                "priceCurrency": "USD",
+                "billingIncrement": "P1M"
+              },
+              {
+                "@type": "Offer",
+                "name": "Pro",
+                "price": "49",
+                "priceCurrency": "USD",
+                "billingIncrement": "P1M"
+              }
+            ],
+            "license": "https://opensource.org/licenses/MIT",
+            "codeRepository": "https://github.com/Mkiza/ai-agent-cost",
+            "author": {
+              "@type": "Person",
+              "name": "Mkiza",
+              "url": "https://github.com/Mkiza"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is Costile?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Costile is a real-time AI cost monitoring proxy that sits between your application and AI APIs (like Anthropic Claude and OpenAI). It tracks every request, calculates costs instantly, and enforces hard budget limits to prevent runaway spending."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does Costile enforce AI API budget limits?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Costile proxies your AI API requests, tracking token usage and cost per request in real time. When your daily or monthly budget cap is reached, it blocks further requests immediately — no waiting for a provider dashboard to refresh."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Which AI providers does Costile support?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Costile currently supports Anthropic's Claude API. OpenAI support is coming soon."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is Costile open source?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Costile is fully open source under the MIT license. You can self-host it for free, audit the code, and contribute on GitHub."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How much does Costile cost?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The self-hosted version is completely free and open source. Managed cloud hosting starts at $19/month (Basic) and $49/month (Pro). Enterprise pricing is available on request."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
     <style>
       * {
         margin: 0;
@@ -868,11 +1014,13 @@
             <span class="logo-text">COSTILE</span>
             <span class="logo-underline"></span>
           </a>
-          <nav class="header-nav">
+          <nav class="header-nav" aria-label="Main navigation">
             <a
               href="https://github.com/Mkiza/ai-agent-cost"
               target="_blank"
+              rel="noopener noreferrer"
               class="github-stars"
+              aria-label="View Costile on GitHub"
             >
               ⭐ <span id="starCount">GitHub</span>
             </a>
@@ -889,9 +1037,9 @@
             Your AI agents are burning money.<br />You'll know in 6 hours.
           </h1>
           <p class="hero-tagline">
-            Costile is a real-time cost proxy that sits between your app and the
-            AI API.<br />
-            It tracks every token, enforces hard budget caps, and kills runaway
+            Costile is an open-source real-time AI API cost monitoring proxy for
+            Anthropic Claude &amp; OpenAI.<br />
+            It tracks every token, enforces hard budget caps, and blocks runaway
             spend — instantly.
           </p>
           <div class="hero-actions">
@@ -899,6 +1047,7 @@
             <a
               href="https://github.com/Mkiza/ai-agent-cost"
               target="_blank"
+              rel="noopener noreferrer"
               class="hero-cta-btn secondary"
             >
               View on GitHub
@@ -908,7 +1057,7 @@
       </div>
 
       <div class="problem-section">
-        <h2>A lot can go wrong in 6 hours</h2>
+        <h2>Why AI API Cost Monitoring Can't Wait 6 Hours</h2>
         <div class="timeline">
           <div class="timeline-item">
             <div class="timeline-time">8:00 AM</div>
@@ -954,33 +1103,36 @@
       <section class="how-it-works">
         <div class="container">
           <div class="section-header">
-            <h2>5 Minutes to Cost Control</h2>
+            <h2>Set Up AI Cost Tracking in 5 Minutes</h2>
             <p>One env variable. No SDK changes. No code refactor.</p>
           </div>
           <div class="steps">
             <div class="step">
               <div class="step-number">1</div>
-              <h3>Swap one URL</h3>
+              <h3>Point your AI API calls to Costile</h3>
               <p>
-                Point your base URL to the Costile proxy. Your app doesn't know
+                Change one environment variable to route through the Costile
+                proxy. No SDK changes, no code refactor — your app doesn't know
                 the difference.
               </p>
               <code>ANTHROPIC_BASE_URL=https://your-proxy.com</code>
             </div>
             <div class="step">
               <div class="step-number">2</div>
-              <h3>Set your limits</h3>
+              <h3>Set hard budget limits per agent</h3>
               <p>
-                Daily caps, monthly caps, per-agent caps. You decide where the
-                line is.
+                Define daily caps, monthly caps, and per-agent caps. Costile
+                enforces them at the request level — not just alerts, actual
+                hard stops.
               </p>
             </div>
             <div class="step">
               <div class="step-number">3</div>
-              <h3>Ship and forget</h3>
+              <h3>Real-time tracking, zero surprise bills</h3>
               <p>
-                Every request is tracked in real-time. Hit the limit? Blocked
-                instantly. No exceptions.
+                Every AI API request is tracked and costed in real time. Hit
+                your limit? Blocked instantly. No exceptions, no delayed
+                dashboards.
               </p>
             </div>
           </div>
@@ -990,15 +1142,22 @@
       <section>
         <div class="container">
           <div class="section-header">
-            <h2>Provider Dashboards Weren't Built for This</h2>
+            <h2>Provider Dashboards Don't Enforce AI Budget Limits</h2>
             <p>They show you what happened. Costile stops it from happening.</p>
           </div>
-          <table class="comparison-table">
+          <table
+            class="comparison-table"
+            aria-label="Costile vs AI provider dashboards comparison"
+          >
+            <caption style="display: none">
+              Costile vs OpenAI and Anthropic dashboards: real-time AI cost
+              tracking, hard budget enforcement, per-agent monitoring
+            </caption>
             <thead>
               <tr>
-                <th>Feature</th>
-                <th>OpenAI/Anthropic</th>
-                <th class="highlight">Costile</th>
+                <th scope="col">Feature</th>
+                <th scope="col">OpenAI/Anthropic</th>
+                <th scope="col" class="highlight">Costile</th>
               </tr>
             </thead>
             <tbody>
@@ -1075,6 +1234,7 @@
               <a
                 href="https://github.com/Mkiza/ai-agent-cost"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="pricing-cta secondary"
               >
                 Get Started on GitHub
@@ -1164,7 +1324,7 @@
       <div class="container">
         <section class="dashboard-section" id="demo">
           <div class="section-header" style="margin-bottom: 40px">
-            <h2>See It In Action</h2>
+            <h2>See AI Cost Monitoring In Action</h2>
             <p>
               Live dashboard with demo data. Self-host to track your own agents.
             </p>
@@ -1201,6 +1361,7 @@
             <a
               href="https://github.com/Mkiza/ai-agent-cost#quick-start"
               target="_blank"
+              rel="noopener noreferrer"
               style="
                 display: inline-block;
                 padding: 12px 24px;
@@ -1377,7 +1538,14 @@
                   justify-content: center;
                 "
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                  role="img"
+                  aria-label="X (Twitter)"
+                >
                   <path
                     d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
                   />
@@ -1424,6 +1592,7 @@
             <a
               href="https://x.com/theallinpod/status/2024157675538243661"
               target="_blank"
+              rel="noopener noreferrer"
               style="
                 display: inline-block;
                 font-size: 0.8125rem;
@@ -1573,12 +1742,18 @@
         <div class="footer-content">
           <div class="footer-links">
             <a href="/privacy.html">Privacy</a>
-            <a href="https://github.com/Mkiza/ai-agent-cost" target="_blank"
+            <a
+              href="https://github.com/Mkiza/ai-agent-cost"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Costile on GitHub"
               >GitHub</a
             >
             <a
               href="https://github.com/Mkiza/ai-agent-cost/issues"
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Report an issue on GitHub"
               >Issues</a
             >
             <a
