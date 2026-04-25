@@ -1,6 +1,6 @@
-# 💰 Costile — AI Agent Cost Monitor
+# 💰 Costile — AI Agent Diagnostics
 
-> Real-time cost tracking and hard budget enforcement for AI agents. Your AI agents are burning money. You'll know in 6 hours — unless you use Costile.
+> Your agents are burning money. We know why.
 
 Born from [this All-In Podcast discussion](https://x.com/theallinpod/status/2024157675538243661) where Jason Calacanis revealed that teams were hitting $300/day per agent using the Claude API — $100K/year, per agent — and didn't see it coming.
 
@@ -9,10 +9,6 @@ Born from [this All-In Podcast discussion](https://x.com/theallinpod/status/2024
 ## 🚀 Live Demo
 
 **Website:** [https://costile.com](https://costile.com)
-
-**Dashboard:** [https://ai-agent-cost-production.up.railway.app](https://ai-agent-cost-production.up.railway.app)
-
-Try it with API key: `demo-customer`
 
 ---
 
@@ -61,24 +57,13 @@ View your costs at: `https://costile.com`
 
 ## 🎯 Why This Exists
 
-### The Problem
+Provider dashboards tell you what your agents spent. They don't tell you why.
 
-A lot can go wrong in 6 hours:
-
-- **8:00 AM** — You ship a new AI agent to production. Everything looks fine.
-- **9:15 AM** — An edge case triggers a retry loop. Your agent starts hammering the API.
-- **11:30 AM** — 10,000 requests later, your bill reads $127. You have no idea.
-- **2:00 PM** — The provider dashboard finally refreshes. You're $77 over budget.
-
-Provider dashboards don't update in real time. By the time you see the number, the damage is done.
-
-### The Solution
-
-Costile is a **real-time cost proxy** that sits between your app and the AI API. It tracks every token, enforces hard budget caps, and kills runaway spend — instantly.
+Costile is an **AI agent diagnostic layer** that sits between your app and the AI API. It tracks every token in real time, enforces hard budget caps, and — crucially — tells you exactly why your costs spiked. Loop detected. Model overkill flagged. Tool overuse identified. Fix recommended.
 
 ✅ **Real-time cost tracking** — See costs as they happen, not hours later  
 ✅ **Hard budget enforcement** — Requests blocked the moment you hit your cap. No exceptions.  
-✅ **Per-agent/team tracking** — Know exactly which agent is burning money  
+✅ **Per-agent tracking** — Know exactly which agent is burning money  
 ✅ **Visual dashboard** — Live costs, daily breakdowns, token analytics  
 ✅ **Privacy-first** — Only metadata is logged. Prompts and responses are never stored.  
 ✅ **Open source (MIT)** — Audit the code, self-host, contribute
@@ -94,36 +79,37 @@ Costile is a **real-time cost proxy** that sits between your app and the AI API.
 - [x] Token usage analytics
 - [x] Multi-agent support
 - [x] SQLite database (easy Postgres migration)
-- [ ] Email alerts
-- [ ] Slack / Discord alerts
+- [ ] Email / Slack alerts
 - [ ] OpenAI support
-- [ ] Cost forecasting & anomaly detection
-- [ ] Managed cloud hosting (join the waitlist at [costile.com](https://costile.com))
+- [ ] Diagnostic reports — loop detection, model waste, cost spike attribution _(Costile Cloud — [costile.com](https://costile.com))_
+- [ ] Agent efficiency recommendations _(Costile Cloud)_
+- [ ] Managed cloud hosting _(Costile Cloud — [join waitlist](https://costile.com))_
 
 ---
 
 ## 🆚 Costile vs. Provider Dashboards
 
-| Feature | OpenAI / Anthropic | Costile |
-|---|---|---|
-| Cost updates | Every 6 hours | **Real-time** |
-| Budget enforcement | None | **Hard caps** |
-| Per-agent tracking | Not supported | **Per agent** |
-| Instant alerts | Email (delayed) | **Real-time block** |
-| Custom limits | Not available | **Per agent / model / time** |
+| Feature             | OpenAI / Anthropic | Costile                             |
+| ------------------- | ------------------ | ----------------------------------- |
+| Cost updates        | Delayed            | **Real-time**                       |
+| Why costs spiked    | ✗ Never            | **Loop, model waste, tool overuse** |
+| Budget enforcement  | ✗ None             | **Hard caps**                       |
+| Per-agent tracking  | ✗ Not supported    | **Per agent, per session**          |
+| Fix recommendations | ✗ Not available    | **Specific, costed, actionable**    |
+| Open source         | ✗ Closed           | **MIT licensed**                    |
 
 ---
 
 ## 💰 Pricing
 
-| Tier | Price | Status |
-|---|---|---|
-| **Free** (self-hosted) | $0 / forever | ✅ Available now |
-| **Basic** (managed hosting) | $19 / month | Coming soon |
-| **Pro** (teams + analytics) | $49 / month | Coming soon |
-| **Enterprise** | Custom | Coming soon |
+| Tier                          | Price        | Status           |
+| ----------------------------- | ------------ | ---------------- |
+| **Free** (self-hosted)        | $0 / forever | ✅ Available now |
+| **Basic** (managed hosting)   | $19 / month  | Coming soon      |
+| **Pro** (diagnostics + teams) | $49 / month  | Coming soon      |
+| **Enterprise**                | Custom       | Coming soon      |
 
-Self-hosting is and will always be free and open source. The paid tiers cover managed hosting, uptime SLA, team access, Slack/Discord alerts, and advanced analytics. [Join the waitlist](https://costile.com) for early access.
+Self-hosting is and will always be free and open source. The paid tiers cover managed hosting, uptime SLA, team access, Slack/Discord alerts, and the full diagnostic engine. [Join the waitlist](https://costile.com) for early access.
 
 ---
 
@@ -134,7 +120,7 @@ Your App → Costile Proxy → Anthropic API
                ↓
           Cost Tracking DB
                ↓
-          Dashboard UI
+          Dashboard + Diagnostics
 ```
 
 **Privacy:** Only metadata is logged (tokens, cost, timestamp). Prompts and responses flow through but are **never stored**.
@@ -174,30 +160,34 @@ All code is open source — audit it yourself or self-host with full control.
 ## 📈 Roadmap
 
 **Near-term:**
+
 - Email / Slack / Discord alerts
 - OpenAI support
-- JavaScript + Python SDK for client-side tracking
-- Cost optimization recommendations
+- JavaScript + Python SDK
 
-**Future:**
+**Costile Cloud (coming soon):**
+
+- Diagnostic reports (loop detection, model waste, cost spike attribution)
+- Agent efficiency recommendations
 - Multi-provider unified dashboard
 - Team management & RBAC
-- Anomaly detection
 - Enterprise features (SSO, audit logs, SOC 2)
-- Managed cloud hosting (costile.com waitlist)
 
 ---
 
 ## ❓ FAQ
 
+**What is Costile?**  
+Costile is an AI agent diagnostic layer that sits between your application and AI APIs like Anthropic and OpenAI. It tracks every request in real time, enforces hard budget caps, and tells you _why_ your costs spiked — loop detected, model overkill flagged, tool overuse identified.
+
 **Which AI providers does Costile support?**  
-Currently Anthropic's Claude API. OpenAI support is coming soon. The architecture is designed to support any provider — open an issue on GitHub if you need a specific one.
+Currently Anthropic's Claude API. OpenAI support is coming soon.
 
 **Is my API data secure?**  
-With self-hosting, your data never leaves your infrastructure. Costile only logs metadata (cost, tokens, timestamps) — never prompts or responses. Your API keys stay in your environment variables and are never exposed or stored. The code is fully open source (MIT) so you can audit everything.
+With self-hosting, your data never leaves your infrastructure. Costile only logs metadata (cost, tokens, timestamps) — never prompts or responses. Your API keys stay in your environment variables and are never exposed or stored.
 
 **Self-hosted vs. Cloud — what's the difference?**  
-Self-hosted (free, open source) runs on your own infrastructure — you manage it, you own the data. The Cloud version (coming soon) is fully managed: hosting, updates, uptime SLA, and additional features like email/Slack alerts, team collaboration, and advanced analytics. Same core technology either way.
+Self-hosted (free, open source) gives you real-time cost tracking and hard budget enforcement. The Cloud version adds the full diagnostic engine — loop detection, model waste analysis, cost spike attribution, fix recommendations, and managed hosting.
 
 ---
 
@@ -206,7 +196,6 @@ Self-hosted (free, open source) runs on your own infrastructure — you manage i
 Contributions are welcome!
 
 ```bash
-# Fork the repo, then:
 git checkout -b feature/your-feature
 git commit -m "Add your feature"
 git push origin feature/your-feature
