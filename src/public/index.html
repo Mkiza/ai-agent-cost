@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Costile – Real-Time AI API Cost Tracking & Budget Enforcement</title>
+    <title>Costile – AI Agent Diagnostics. Know Why Your Agents Are Burning Money.</title>
     <meta
       name="description"
-      content="Costile is an open-source AI cost monitoring proxy for Anthropic Claude and OpenAI. Track token spend per agent in real time, enforce hard budget caps, and stop runaway AI API costs before they hit your invoice."
+      content="Costile is an open-source AI agent diagnostic layer. It doesn't just track spend — it tells you which agent looped, which model was overkill, and exactly where the money went. Self-hostable, MIT licensed."
     />
 
     <!-- Canonical -->
@@ -40,11 +40,11 @@
     <meta property="og:site_name" content="Costile" />
     <meta
       property="og:title"
-      content="Costile – Real-Time AI API Cost Tracking & Budget Enforcement"
+      content="Costile – AI Agent Diagnostics. Know Why Your Agents Are Burning Money."
     />
     <meta
       property="og:description"
-      content="Open-source proxy that tracks every AI token in real time and enforces hard budget caps on Anthropic Claude & OpenAI. Stop surprise bills before they happen."
+      content="Open-source AI agent diagnostic layer. Detects loops, model waste, and tool overuse — and tells you exactly what to fix. Self-hostable, MIT licensed."
     />
     <meta property="og:image" content="https://costile.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
@@ -56,11 +56,11 @@
     <meta name="twitter:site" content="@Mkiza" />
     <meta
       name="twitter:title"
-      content="Costile – Real-Time AI API Cost Tracking & Budget Enforcement"
+      content="Costile – AI Agent Diagnostics. Know Why Your Agents Are Burning Money."
     />
     <meta
       name="twitter:description"
-      content="Open-source proxy that tracks every AI token in real time and enforces hard budget caps. Stop runaway AI agent spend instantly."
+      content="Detects loops, model waste, and tool overuse in your AI agents. Tells you exactly what caused the cost spike and what to fix."
     />
     <meta name="twitter:image" content="https://costile.com/og-image.png" />
 
@@ -1034,13 +1034,11 @@
       <div class="container">
         <section class="hero">
           <h1>
-            Your AI agents are burning money.<br />You'll know in 6 hours.
+            Your agents are burning money.<br />We know why.
           </h1>
           <p class="hero-tagline">
-            Costile is an open-source real-time AI API cost monitoring proxy for
-            Anthropic Claude &amp; OpenAI.<br />
-            It tracks every token, enforces hard budget caps, and blocks runaway
-            spend — instantly.
+            Costile is an open-source AI agent diagnostic layer for Anthropic Claude &amp; OpenAI.<br />
+            It doesn't just track spend — it tells you which agent looped, which model was overkill, and exactly where the money went.
           </p>
           <div class="hero-actions">
             <a href="#demo" class="hero-cta-btn primary"> Try Live Demo </a>
@@ -1057,7 +1055,7 @@
       </div>
 
       <div class="problem-section">
-        <h2>Why AI API Cost Monitoring Can't Wait 6 Hours</h2>
+        <h2>You'll see the bill. You won't know why.</h2>
         <div class="timeline">
           <div class="timeline-item">
             <div class="timeline-time">8:00 AM</div>
@@ -1068,34 +1066,30 @@
           <div class="timeline-item">
             <div class="timeline-time">9:15 AM</div>
             <div class="timeline-content">
-              An edge case triggers a retry loop. Your agent starts hammering
-              the API.
+              An edge case triggers a retry loop. Your agent calls the same tool 47 times in 4 minutes.
             </div>
           </div>
           <div class="timeline-item danger">
             <div class="timeline-time">11:30 AM</div>
             <div class="timeline-content">
-              10,000 requests later, your bill reads <strong>$127</strong>. You
-              have no idea.
+              10,000 requests later, your bill reads <strong>$127</strong>. You have no idea why.
             </div>
           </div>
           <div class="timeline-item danger">
             <div class="timeline-time">2:00 PM</div>
             <div class="timeline-content">
-              The provider dashboard finally refreshes. You're $77 over budget.
+              The provider dashboard refreshes. You're $77 over budget — and it still won't tell you what caused it.
             </div>
           </div>
         </div>
 
         <div class="timeline-highlight">
-          <strong>Budget was $50. You blew past it 3 hours ago.</strong> Nobody
-          noticed.
+          <strong>The bill tells you what. Costile tells you why.</strong>
         </div>
 
         <div class="timeline-solution">
           <p>
-            ✓ With Costile: Hard-stopped at request #3,900. Budget held at $50.
-            You slept fine.
+            ✓ With Costile: Loop detected at request #312. Agent hard-stopped. Root cause identified. Fix recommended.
           </p>
         </div>
       </div>
@@ -1103,38 +1097,51 @@
       <section class="how-it-works">
         <div class="container">
           <div class="section-header">
-            <h2>Set Up AI Cost Tracking in 5 Minutes</h2>
-            <p>One env variable. No SDK changes. No code refactor.</p>
+            <h2>From one env variable to knowing exactly why your agent costs spiked</h2>
+            <p>One line of setup. Instant diagnostic visibility.</p>
           </div>
           <div class="steps">
             <div class="step">
               <div class="step-number">1</div>
               <h3>Point your AI API calls to Costile</h3>
               <p>
-                Change one environment variable to route through the Costile
-                proxy. No SDK changes, no code refactor — your app doesn't know
-                the difference.
+                Change one environment variable. No SDK changes, no code refactor — your app doesn't know the difference.
               </p>
               <code>ANTHROPIC_BASE_URL=https://your-proxy.com</code>
             </div>
             <div class="step">
               <div class="step-number">2</div>
-              <h3>Set hard budget limits per agent</h3>
+              <h3>Costile watches every request in real time</h3>
               <p>
-                Define daily caps, monthly caps, and per-agent caps. Costile
-                enforces them at the request level — not just alerts, actual
-                hard stops.
+                Every token, every tool call, every model choice — logged as it happens. Per agent, per session, per step.
               </p>
             </div>
             <div class="step">
               <div class="step-number">3</div>
-              <h3>Real-time tracking, zero surprise bills</h3>
+              <h3>Get a diagnostic report that tells you why</h3>
               <p>
-                Every AI API request is tracked and costed in real time. Hit
-                your limit? Blocked instantly. No exceptions, no delayed
-                dashboards.
+                Loop detected. Model overkill flagged. Cost spike attributed to the exact request. Fix recommended. Not a dashboard — a diagnosis.
               </p>
             </div>
+          </div>
+
+          <!-- Diagnostic report preview -->
+          <div style="margin-top: 56px; background: #0f0f0f; border-radius: var(--radius-lg); padding: 32px; font-family: 'Courier New', monospace; font-size: 0.875rem; line-height: 1.8; color: #e5e5e5; overflow-x: auto;">
+            <div style="color: #737373; margin-bottom: 16px;">$ node scripts/diagnose.js my-agent 24</div>
+            <div style="color: #f97316; font-weight: 700; margin-bottom: 8px;">╔════════════════════════════════════════════╗</div>
+            <div style="color: #f97316; font-weight: 700;">║       COSTILE DIAGNOSTIC REPORT            ║</div>
+            <div style="color: #f97316; font-weight: 700; margin-bottom: 16px;">╚════════════════════════════════════════════╝</div>
+            <div><span style="color: #737373;">Total cost   </span> <span style="color: #ef4444; font-weight: 600;">$0.067682</span></div>
+            <div><span style="color: #737373;">Baseline     </span> $0.004914</div>
+            <div style="margin-bottom: 16px;"><span style="color: #737373;">Overspend    </span> <span style="color: #ef4444; font-weight: 600;">13.8x above baseline</span></div>
+            <div style="color: #f59e0b; margin-bottom: 4px;">⚠  LOOP DETECTED — agent: support-bot</div>
+            <div style="color: #737373; padding-left: 16px;">12 requests in 5 minutes · avg 15s apart</div>
+            <div style="color: #737373; padding-left: 16px; margin-bottom: 12px;">Fix: Add max_turns or cooldown to support-bot</div>
+            <div style="color: #f59e0b; margin-bottom: 4px;">⚠  MODEL WASTE — 8 opus requests with &lt;500 tokens</div>
+            <div style="color: #737373; padding-left: 16px;">Wasted: $0.0648 · Route to haiku → save ~$0.055</div>
+            <div style="color: #737373; padding-left: 16px; margin-bottom: 12px;">Fix: Use claude-haiku for short requests</div>
+            <div style="color: #10b981; margin-top: 8px;">→ Set daily budget cap to $0.0059</div>
+            <div style="color: #10b981;">→ Use claude-haiku for requests under 500 tokens</div>
           </div>
         </div>
       </section>
@@ -1142,8 +1149,8 @@
       <section>
         <div class="container">
           <div class="section-header">
-            <h2>Provider Dashboards Don't Enforce AI Budget Limits</h2>
-            <p>They show you what happened. Costile stops it from happening.</p>
+            <h2>Provider dashboards tell you what. Costile tells you why.</h2>
+            <p>Visibility isn't enough. You need a diagnosis.</p>
           </div>
           <table
             class="comparison-table"
@@ -1151,7 +1158,7 @@
           >
             <caption style="display: none">
               Costile vs OpenAI and Anthropic dashboards: real-time AI cost
-              tracking, hard budget enforcement, per-agent monitoring
+              tracking, hard budget enforcement, per-agent monitoring, root cause analysis
             </caption>
             <thead>
               <tr>
@@ -1163,8 +1170,15 @@
             <tbody>
               <tr>
                 <td>Cost updates</td>
-                <td>Every 6 hours</td>
+                <td>Delayed</td>
                 <td class="highlight"><strong>Real-time</strong></td>
+              </tr>
+              <tr>
+                <td>Why costs spiked</td>
+                <td><span class="cross">✗</span> Never</td>
+                <td class="highlight">
+                  <span class="check">✓</span> Loop, model waste, tool overuse
+                </td>
               </tr>
               <tr>
                 <td>Budget enforcement</td>
@@ -1177,21 +1191,21 @@
                 <td>Per-agent tracking</td>
                 <td><span class="cross">✗</span> Not supported</td>
                 <td class="highlight">
-                  <span class="check">✓</span> Track each agent
+                  <span class="check">✓</span> Per agent, per session
                 </td>
               </tr>
               <tr>
-                <td>Instant alerts</td>
-                <td><span class="cross">✗</span> Email (delayed)</td>
-                <td class="highlight">
-                  <span class="check">✓</span> Real-time block
-                </td>
-              </tr>
-              <tr>
-                <td>Custom limits</td>
+                <td>Fix recommendations</td>
                 <td><span class="cross">✗</span> Not available</td>
                 <td class="highlight">
-                  <span class="check">✓</span> Per agent/model/time
+                  <span class="check">✓</span> Specific, costed, actionable
+                </td>
+              </tr>
+              <tr>
+                <td>Open source</td>
+                <td><span class="cross">✗</span> Closed</td>
+                <td class="highlight">
+                  <span class="check">✓</span> MIT licensed
                 </td>
               </tr>
             </tbody>
@@ -1324,9 +1338,9 @@
       <div class="container">
         <section class="dashboard-section" id="demo">
           <div class="section-header" style="margin-bottom: 40px">
-            <h2>See AI Cost Monitoring In Action</h2>
+            <h2>Agent Cost Overview</h2>
             <p>
-              Live dashboard with demo data. Self-host to track your own agents.
+              Real spend by agent. See which one is costing the most — then run a diagnostic to find out why.
             </p>
           </div>
 
@@ -1632,12 +1646,7 @@
             <details class="faq-item" open>
               <summary class="faq-question">What is Costile?</summary>
               <div class="faq-answer">
-                Costile is a real-time AI cost monitoring proxy that sits
-                between your application and AI APIs (like Anthropic, OpenAI).
-                It tracks every request, calculates costs instantly, and
-                enforces hard budget limits to prevent runaway spending. Unlike
-                provider dashboards that update every 6 hours, Costile stops
-                overspending the moment you hit your limit.
+                Costile is an AI agent diagnostic layer that sits between your application and AI APIs like Anthropic and OpenAI. It tracks every request in real time, enforces hard budget caps — and crucially, tells you <strong>why</strong> your costs spiked. Loop detected? Model overkill? Tool overuse? Costile identifies the root cause and tells you exactly what to fix.
               </div>
             </details>
 
