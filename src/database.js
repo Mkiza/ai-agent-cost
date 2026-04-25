@@ -26,21 +26,26 @@ const db = new sqlite3.Database(dbPath, (err) => {
 // Initialize database
 db.serialize(() => {
   db.run(`
-    CREATE TABLE IF NOT EXISTS requests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      customer_api_key TEXT NOT NULL,
-      agent_id TEXT DEFAULT 'default',
-      timestamp INTEGER NOT NULL,
-      model TEXT NOT NULL,
-      input_tokens INTEGER NOT NULL,
-      output_tokens INTEGER NOT NULL,
-      input_cost_usd REAL NOT NULL,
-      output_cost_usd REAL NOT NULL,
-      total_cost_usd REAL NOT NULL,
-      request_duration_ms INTEGER,
-      status TEXT DEFAULT 'success'
-    )
-  `);
+  CREATE TABLE IF NOT EXISTS requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_api_key TEXT NOT NULL,
+    agent_id TEXT DEFAULT 'default',
+    session_id TEXT,
+    request_index INTEGER DEFAULT 0,
+    timestamp INTEGER NOT NULL,
+    model TEXT NOT NULL,
+    input_tokens INTEGER NOT NULL,
+    output_tokens INTEGER NOT NULL,
+    input_cost_usd REAL NOT NULL,
+    output_cost_usd REAL NOT NULL,
+    total_cost_usd REAL NOT NULL,
+    request_duration_ms INTEGER,
+    status TEXT DEFAULT 'success',
+    stop_reason TEXT,
+    tool_calls_count INTEGER DEFAULT 0,
+    tool_calls_json TEXT
+  )
+`);
 
   db.run(`
   CREATE TABLE IF NOT EXISTS budgets (
@@ -96,21 +101,52 @@ db.serialize(() => {
 
   db.run(`CREATE INDEX IF NOT EXISTS idx_customer_timestamp 
           ON requests(customer_api_key, timestamp)`);
+
+  // Migration: add diagnostic columns if they don't exist
+  const diagnosticColumns = [
+    { name: "session_id", def: "TEXT" },
+    { name: "request_index", def: "INTEGER DEFAULT 0" },
+    { name: "stop_reason", def: "TEXT" },
+    { name: "tool_calls_count", def: "INTEGER DEFAULT 0" },
+    { name: "tool_calls_json", def: "TEXT" },
+  ];
+
+  db.all(`PRAGMA table_info(requests)`, [], (err, columns) => {
+    if (err) return;
+    const existing = columns.map((c) => c.name);
+    diagnosticColumns.forEach((col) => {
+      if (!existing.includes(col.name)) {
+        console.log(`🔧 Adding ${col.name} column to requests table...`);
+        db.run(
+          `ALTER TABLE requests ADD COLUMN ${col.name} ${col.def}`,
+          (err) => {
+            if (err) console.error(`❌ Failed to add ${col.name}:`, err);
+            else console.log(`✅ ${col.name} column added`);
+          },
+        );
+      }
+    });
+  });
 });
 
 function logRequest(data) {
   return new Promise((resolve, reject) => {
     const stmt = db.prepare(`
       INSERT INTO requests (
-        customer_api_key, timestamp, model, 
+        customer_api_key, agent_id, session_id, request_index,
+        timestamp, model,
         input_tokens, output_tokens,
         input_cost_usd, output_cost_usd, total_cost_usd,
-        request_duration_ms, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        request_duration_ms, status,
+        stop_reason, tool_calls_count, tool_calls_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
       data.customerApiKey,
+      data.agentId || "default",
+      data.sessionId || null,
+      data.requestIndex || 0,
       data.timestamp,
       data.model,
       data.inputTokens,
@@ -120,12 +156,14 @@ function logRequest(data) {
       data.totalCost,
       data.duration,
       data.status,
+      data.stopReason || null,
+      data.toolCallsCount || 0,
+      data.toolCallsJson || null,
       (err) => {
         if (err) reject(err);
         else resolve();
       },
     );
-
     stmt.finalize();
   });
 }

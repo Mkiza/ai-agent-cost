@@ -153,18 +153,40 @@ app.post("/v1/messages", async (req, res) => {
         },
       },
     );
-
     const duration = Date.now() - startTime;
     const usage = response.data.usage;
     const model = req.body.model;
 
+    // Extract diagnostic data from response
+    const stopReason = response.data.stop_reason || null;
+    const contentBlocks = response.data.content || [];
+    const toolCalls = contentBlocks.filter(
+      (block) => block.type === "tool_use",
+    );
+    const toolCallsCount = toolCalls.length;
+    const toolCallsJson =
+      toolCalls.length > 0
+        ? JSON.stringify(
+            toolCalls.map((t) => ({
+              name: t.name,
+              id: t.id,
+            })),
+          )
+        : null;
+
+    // Extract session context from headers
+    const sessionId = req.headers["x-session-id"] || null;
+    const requestIndex = parseInt(req.headers["x-request-index"] || "0");
+
     // Calculate cost
     const cost = calculateCost(model, usage.input_tokens, usage.output_tokens);
 
-    // Log to database (don't wait for it) - NOW WITH AGENT ID
+    // Log to database
     logRequest({
       customerApiKey,
-      agentId, // NEW: Include agent ID
+      agentId,
+      sessionId,
+      requestIndex,
       timestamp: Date.now(),
       model,
       inputTokens: usage.input_tokens,
@@ -174,6 +196,9 @@ app.post("/v1/messages", async (req, res) => {
       totalCost: cost.totalCost,
       duration,
       status: "success",
+      stopReason,
+      toolCallsCount,
+      toolCallsJson,
     }).catch((err) => console.error("Failed to log request:", err));
 
     // Add cost info to response headers
@@ -248,7 +273,9 @@ app.post("/v1/messages/mock", async (req, res) => {
   // Log to database - NOW WITH AGENT ID
   await logRequest({
     customerApiKey,
-    agentId, // NEW: Include agent ID
+    agentId,
+    sessionId: req.headers["x-session-id"] || null,
+    requestIndex: parseInt(req.headers["x-request-index"] || "0"),
     timestamp: Date.now(),
     model: req.body.model,
     inputTokens: 10,
@@ -258,6 +285,9 @@ app.post("/v1/messages/mock", async (req, res) => {
     totalCost: cost.totalCost,
     duration,
     status: "success",
+    stopReason: "end_turn",
+    toolCallsCount: 0,
+    toolCallsJson: null,
   });
 
   res.setHeader("X-Cost-Total-USD", cost.totalCost.toFixed(6));
