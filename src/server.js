@@ -157,27 +157,6 @@ app.post("/v1/messages", async (req, res) => {
     const usage = response.data.usage;
     const model = req.body.model;
 
-    // Extract diagnostic data from response
-    const stopReason = response.data.stop_reason || null;
-    const contentBlocks = response.data.content || [];
-    const toolCalls = contentBlocks.filter(
-      (block) => block.type === "tool_use",
-    );
-    const toolCallsCount = toolCalls.length;
-    const toolCallsJson =
-      toolCalls.length > 0
-        ? JSON.stringify(
-            toolCalls.map((t) => ({
-              name: t.name,
-              id: t.id,
-            })),
-          )
-        : null;
-
-    // Extract session context from headers
-    const sessionId = req.headers["x-session-id"] || null;
-    const requestIndex = parseInt(req.headers["x-request-index"] || "0");
-
     // Calculate cost
     const cost = calculateCost(model, usage.input_tokens, usage.output_tokens);
 
@@ -185,8 +164,6 @@ app.post("/v1/messages", async (req, res) => {
     logRequest({
       customerApiKey,
       agentId,
-      sessionId,
-      requestIndex,
       timestamp: Date.now(),
       model,
       inputTokens: usage.input_tokens,
@@ -196,9 +173,6 @@ app.post("/v1/messages", async (req, res) => {
       totalCost: cost.totalCost,
       duration,
       status: "success",
-      stopReason,
-      toolCallsCount,
-      toolCallsJson,
     }).catch((err) => console.error("Failed to log request:", err));
 
     // Add cost info to response headers
@@ -274,8 +248,6 @@ app.post("/v1/messages/mock", async (req, res) => {
   await logRequest({
     customerApiKey,
     agentId,
-    sessionId: req.headers["x-session-id"] || null,
-    requestIndex: parseInt(req.headers["x-request-index"] || "0"),
     timestamp: Date.now(),
     model: req.body.model,
     inputTokens: 10,
@@ -285,15 +257,14 @@ app.post("/v1/messages/mock", async (req, res) => {
     totalCost: cost.totalCost,
     duration,
     status: "success",
-    stopReason: "end_turn",
-    toolCallsCount: 0,
-    toolCallsJson: null,
   });
 
   res.setHeader("X-Cost-Total-USD", cost.totalCost.toFixed(6));
-  res.setHeader("X-Agent-ID", agentId); // NEW: Return agent ID
+  res.setHeader("X-Agent-ID", agentId);
   res.json(mockResponse);
 });
+
+// Dashboard API - view costs by customer
 
 // Dashboard API - view costs by customer
 // EXPANDED DEMO DATA - 50 entries for realistic demo
@@ -729,4 +700,13 @@ app.post("/api/budget/:apiKey", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Diagnostic reports available in Costile Cloud
+app.get("/api/diagnose/:apiKey", (req, res) => {
+  res.json({
+    message: "Diagnostic reports are available in Costile Cloud.",
+    info: "Loop detection, model waste analysis, and cost spike attribution are part of the Cloud tier.",
+    waitlist: "https://costile.com",
+  });
 });
